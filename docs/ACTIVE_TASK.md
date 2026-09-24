@@ -8,7 +8,7 @@
 - Layer: Actionable audit report
 - Owner: Mohan
 - Exclusive write scope: `auditor-frontend` main working copy only
-- Status: implementation_complete; review pending
+- Status: completed; review pending
 - Review: pending
 
 ## Objective
@@ -91,7 +91,8 @@ remote hash are recorded in `docs/P027_DASHBOARD_COMPLETION_EVIDENCE.md`.
 - Browser/print capability check returned `browser.disconnected`; no browser
   interaction or deployment of the committed backend route is claimed.
 - P028-UI implementation commit `543c2c9734e50f7cf296580035f085de276cde7a`
-  was pushed normally to `origin/main`; local and remote refs matched at that
-  checkpoint. A separate deployment observation is not claimed.
-- Exact next action: push the final continuity update and return the P028-UI
-  evidence report.
+  and final continuity commit `803efba15b3850d9d46213c38599d10bd6271696`
+  were pushed normally to `origin/main`; local and remote refs match at the
+  final checkpoint. A separate deployment observation is not claimed.
+- Exact next action: return the P028-UI evidence report. Browser/print
+  verification remains manual because the available browser was disconnected.

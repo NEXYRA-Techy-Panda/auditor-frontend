@@ -584,3 +584,14 @@ correction entry; do not rewrite history.
   claimed. Browser/print interaction remains unverified because the available
   browser was disconnected.
 - The next action is the final continuity commit and remote-ref verification.
+
+---
+
+## 2026-09-25 — P028-UI final continuity publication (Mohan, M-A — OpenCode)
+
+- Recorded the final continuity state in commit
+  `803efba15b3850d9d46213c38599d10bd6271696` and pushed it normally to
+  `origin/main`. Local HEAD and `origin/main` match.
+- No deployment observation, browser interaction, backend/Python/database or
+  infrastructure mutation is claimed. Review remains pending; no approval is
+  claimed.

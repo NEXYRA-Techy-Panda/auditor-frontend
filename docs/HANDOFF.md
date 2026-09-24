@@ -12,8 +12,10 @@
   pagination and print gating. Final verification passes (93 tests, typecheck,
   lint with the existing warning only, build and 75/75 contract verification);
   browser/print evidence remains manual. Implementation commit
-  `543c2c9734e50f7cf296580035f085de276cde7a` was pushed to `origin/main`;
-  a separate deployment observation is not claimed.
+  `543c2c9734e50f7cf296580035f085de276cde7a` and final continuity commit
+  `803efba15b3850d9d46213c38599d10bd6271696` were pushed to `origin/main`;
+  local and remote refs match. A separate deployment observation is not
+  claimed.
 - P027 is wired to committed P023 at `f3b8e2c8dac923957d91e1a55591abc7e03fe67c`
   / feature `d683578106e718a4e1a42f9a29ce796bcb2d2857`, and to committed P026
   detector integration at `d0fcd092fa39ca17a7efbcdaeffd4e43bd1c2eb1`.

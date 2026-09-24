@@ -118,8 +118,9 @@ Updated frontend source/continuity:
 ## Publication
 
 - P028-UI implementation commit: `543c2c9734e50f7cf296580035f085de276cde7a`.
-- It was pushed normally to `origin/main`; local HEAD matched the remote main
-  ref immediately after the push.
+- Final continuity commit: `803efba15b3850d9d46213c38599d10bd6271696`.
+- Both commits were pushed normally to `origin/main`; local HEAD matches the
+  remote main ref at `803efba15b3850d9d46213c38599d10bd6271696`.
 - A separate Vercel deployment observation is not claimed. The committed
   backend route and the public deployment state remain distinct evidence.
 
