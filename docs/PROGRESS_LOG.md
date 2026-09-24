@@ -213,3 +213,21 @@ correction entry; do not rewrite history.
 - Startup: no AGENTS.md; clean tree; fetch clean; repo-local identity present.
 - Next action: corrections authored in `simulation-backend`, mirrored here.
 - Review status: pending.
+
+---
+
+## 2026-09-24 19:42:37 +05:30 (IST) - P001 F4-A started (actual, Agent A - OpenCode)
+
+- F2-A completed and accepted based on supplied evidence. Dated correction: contract 1.0.1 (F1-R2) is accepted; older unaccepted/review-pending wording about the contract refers to pre-acceptance state. History preserved.
+- Exclusive owner of the two frontends; Codex owns auditor-backend for its assignment - no writes/installs/commits/processes there, no shared-parent or contract changes.
+- Startup: AGENTS.md absent; context + API.md + manifest read; main clean at 8cf215a, fetch clean. Note: this log contains out-of-order F1-era entries plus a displaced F1-R2-started body fragment near the end; preserved, mapped by dated corrections, not rewritten.
+- Next action: implement lib/health.ts + connection-panel, wire into page.
+- Review status: pending. P001 commit: none yet.
+---
+
+## 2026-09-24 19:55:00 +05:30 (IST) - P001 F4-A completed (actual, Agent A - OpenCode)
+
+- Connection panel implemented (kind="auditor"); shared 20/20 checks; 75/75 contract; typecheck/lint(0 errors)/build green; HTTP-200 panel markup; servers stopped.
+- Real backend :4001 refused (integration pending); browser/CORS not verifiable in-session. Backend repos untouched. Review pending; no approval claimed.
+- Next action: commit, push main, verify remote hash; return P001 evidence. Stop after P001.
+- Commit references: F2-A pushed; P001 recorded after push.

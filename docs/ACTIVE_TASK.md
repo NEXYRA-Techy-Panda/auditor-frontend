@@ -1,15 +1,26 @@
 # ACTIVE_TASK — auditor-frontend
 
+## prompt_id
+
+P001
+
+## agent
+
+A — OpenCode
+
 ## Layer ID
 
-F2-A
+F4-A
 
 ## Objective
 
-Next.js + React + TypeScript + Tailwind foundation for the Auditor UI
-("Energy Auditor", port 3001): scaffold, foundation screen (analysis not
-implemented), .env.example, npm scripts, install + verify + typecheck + lint
-+ build + serve + HTTP check, commit + push. No backend integration.
+Replace the static "not implemented" status with a real browser-side backend
+connection panel (`NEXT_PUBLIC_AUDITOR_BACKEND_URL` + `/api/v1/health`):
+states, Check button, initial check on load, bounded timeout, abort on
+unmount, no duplicates, no polling. Typed parsing; show URL, contract
+version, last-check time, actual state (ml_reachable:not_checked ≠ ML
+connected). Verify via mock-server + logic tests, typecheck, lint, build,
+HTTP. No uploads, charts, or auth UI. Contract 1.0.1 authoritative, read-only.
 
 ## Task status
 
@@ -22,62 +33,62 @@ pending
 ## Repository and owner
 
 - Repository: `auditor-frontend` (`https://github.com/NEXYRA-Techy-Panda/auditor-frontend.git`)
-- Agent: Agent A (exclusive owner of the two frontends this layer).
+- Agent: A — OpenCode, exclusive owner of the two frontends this layer.
 - Owner (foundation + long-term): Mohan.
 
 ## Current branch
 
-`main` (F1-R2 `0390240` pushed; tree clean at F2-A start)
+`main` (F2-A `8cf215a` pushed; tree clean at P001 start)
 
 ## Last checkpoint timestamp, including timezone
 
-2026-09-24 19:35:00 +05:30 (IST) — F2-A completed (auditor UI).
+2026-09-24 19:55:00 +05:30 (IST) — P001 F4-A completed (auditor UI).
 
 ## Applicable contract version
 
-1.0.1 (read-only during F2-A).
+1.0.1 (authoritative, read-only; F1-R2 accepted, F2-A accepted — dated
+correction recorded).
 
 ## Completed steps
 
-1. Startup: context read; git state clean/in-sync at expected commit;
-   F2-A recorded. (Known out-of-order F1 log pair preserved.)
-2. Environment: Node v24.21.0, npm 11.19.0; registry reachable.
-3. Scaffolded (temp dir), copied app/configs in, wrote foundation screen,
-   package scripts, .env.example, merged .gitignore/README.
-4. Installed; verifier 75/75; typecheck clean; lint 0 errors; build clean;
-   served production on 3001 and HTTP-verified; stopped own server process.
-   No browser capability.
+1. Startup: AGENTS.md absent; context/API/manifest read; git clean/in-sync;
+   P001 recorded.
+2. Implemented `app/lib/health.ts` + `app/components/connection-panel.tsx`,
+   wired into page (kind="auditor").
+3. Verified: shared 20/20 logic+mock checks; 75/75 contract; typecheck/lint(0
+   errors)/build green; served + HTTP-200 panel markup; servers stopped.
+   Real backend down (pending); no browser capability.
 
 ## Files changed
 
-- Created: `app/`, `public/`, configs, `package.json`+lock, `.env.example`,
-  `docs/F2_A_EVIDENCE.md`. Updated: `README.md`, `.gitignore`, `docs/HANDOFF.md`,
+- Created: `app/lib/health.ts`, `app/components/connection-panel.tsx`,
+  `docs/P001_F4_A_EVIDENCE.md`. Updated: `app/page.tsx`, `docs/HANDOFF.md`,
   `docs/PROGRESS_LOG.md`, `docs/ACTIVE_TASK.md`.
 
 ## Verification performed and actual results
 
-- `git status` clean, `main` at `0390240`, fetch clean. No AGENTS.md.
-- Node 24 satisfies Next 16 (requires >=20.9).
+- `main` at `8cf215a`, fetch clean, tree clean.
 
 ## Incomplete edits and uncommitted changes
 
-- None incomplete. Backend repos untouched. Committing and pushing now.
+- Panel implemented and verified; backend repos untouched. Committing and
+  pushing now.
 
 ## Blockers or unknowns
 
-- None. Backend repos owned by another agent — do not touch.
+- None.
 
 ## Exact next action
 
-Commit, push `main`, verify remote hash; then return F2-A evidence.
-Do not proceed to F3 or F4.
+Commit, push `main`, verify remote hash; then return P001 evidence.
+Stop after P001.
 
 ## Related-repository dependencies
 
-Paired backend `../auditor-backend` (port 4001) — other agent's work;
-no integration in F2-A.
+Paired backend `../auditor-backend` (4001, Codex's assignment); read-only
+health checks only if already running.
 
 ## Commit reference
 
-F1-R2: `039024060b7078b83f84752c314232b2029ea93b` (pushed, verified).
-F2-A: none yet.
+F2-A: `8cf215aaff637bf12f28b6194f45e57a267b0015` (pushed, verified).
+P001: none yet.

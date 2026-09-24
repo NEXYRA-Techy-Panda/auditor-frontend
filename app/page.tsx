@@ -1,3 +1,5 @@
+import ConnectionPanel from "./components/connection-panel";
+
 const backendUrl =
   process.env.NEXT_PUBLIC_AUDITOR_BACKEND_URL ?? "(not configured)";
 
@@ -13,19 +15,7 @@ export default function Home() {
         </p>
       </header>
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-8 py-10">
-        <section className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
-          <h2 className="text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Status
-          </h2>
-          <p className="mt-2 text-lg text-zinc-900 dark:text-zinc-50">
-            File analysis:{" "}
-            <span className="font-semibold">not implemented yet</span>
-          </p>
-          <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-            This is the F2 application foundation. File upload, analytics,
-            forecasts, and reports arrive in later layers.
-          </p>
-        </section>
+        <ConnectionPanel backendUrl={backendUrl} kind="auditor" />
         <section className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
           <h2 className="text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
             Configuration
