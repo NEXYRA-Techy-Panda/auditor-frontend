@@ -2,8 +2,8 @@
 
 ## 0. Continuity and current layer (F0.1, 2026-09-24)
 
-- Current layer: **P001 F4-A** (frontend health connections, Agent A —
-  OpenCode) — status **in_progress**, review **pending**. Contract: **1.0.1
+- Current layer: **P007 A1-UI** (auditor upload + datasets, Agent A —
+  OpenCode) — status **completed**, review **pending**. Contract: **1.0.1
   authoritative, read-only**.
 - P001 F4-A addendum (completed, review pending): browser-side connection
   panel (`NEXT_PUBLIC_AUDITOR_BACKEND_URL` + `/api/v1/health`, 8 s timeout,
@@ -13,6 +13,13 @@
   markup; real backend not running (integration pending); browser/CORS not
   verifiable in-session. Details in [P001_F4_A_EVIDENCE.md](P001_F4_A_EVIDENCE.md).
   History preserved.
+- P007 A1-UI addendum (completed, review pending): upload/list/select/
+  summary/tariff screen — typed adapter, committed node:test checks (18/18),
+  no fake data, unset-not-zero, explicit tariff save. Verified: typecheck/
+  lint(0 errors)/build/75-75 green, HTTP-200 markup; real backend down
+  (5 open response questions for Codex); browser interaction unverified.
+  Details in [P007_A1_UI_EVIDENCE.md](P007_A1_UI_EVIDENCE.md).
+  Simulation-frontend untouched. History preserved.
 - Dated correction (2026-09-24, P001): F1-R2 (contract 1.0.1) and F2-A are
   accepted based on supplied evidence; older "unaccepted"/"review pending"
   wording about the contract refers to pre-acceptance review state. Later

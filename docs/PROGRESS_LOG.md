@@ -231,3 +231,20 @@ correction entry; do not rewrite history.
 - Real backend :4001 refused (integration pending); browser/CORS not verifiable in-session. Backend repos untouched. Review pending; no approval claimed.
 - Next action: commit, push main, verify remote hash; return P001 evidence. Stop after P001.
 - Commit references: F2-A pushed; P001 recorded after push.
+---
+
+## 2026-09-24 20:11:33 +05:30 (IST) - P007 A1-UI started (actual, Agent A - OpenCode)
+
+- P001 accepted for implementation; browser/CORS + live backend still outstanding (recorded, not confused with mock/SSR checks).
+- Exclusive writer: auditor-frontend only. Simulation-frontend unchanged. Codex owns auditor-backend (P006); no sibling/parent/contract writes; no backend processes started or stopped.
+- Startup: AGENTS.md absent; context + health-panel + API 1.0.1 read; main clean at expected baseline bf17d59, fetch clean.
+- Next action: typed API adapter + upload/list/summary/tariff UI with committed node:test checks.
+- Review status: pending. P007 commit: none yet.
+---
+
+## 2026-09-24 20:25:00 +05:30 (IST) - P007 A1-UI completed (actual, Agent A - OpenCode)
+
+- Upload/list/select/summary/tariff screen implemented with typed adapter + committed node:test checks (18/18). 75/75 contract; typecheck/lint(0 errors)/build green; HTTP-200 markup; own server stopped.
+- Real backend :4001 refused (5 open response questions for Codex, recorded in evidence); browser interaction/CORS unverified; no test uploads made. Simulation-frontend untouched. Review pending; no approval claimed.
+- Next action: commit, push main, verify remote hash; return P007 evidence. Stop after P007.
+- Commit references: P001 pushed; P007 recorded after push.

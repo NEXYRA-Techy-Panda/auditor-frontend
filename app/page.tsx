@@ -1,4 +1,4 @@
-import ConnectionPanel from "./components/connection-panel";
+import AuditorScreen from "./components/auditor-screen";
 
 const backendUrl =
   process.env.NEXT_PUBLIC_AUDITOR_BACKEND_URL ?? "(not configured)";
@@ -11,30 +11,11 @@ export default function Home() {
           Energy Auditor
         </h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          NEXYRA auditing frontend — foundation screen
+          NEXYRA auditing frontend — upload and datasets
         </p>
       </header>
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-8 py-10">
-        <ConnectionPanel backendUrl={backendUrl} kind="auditor" />
-        <section className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
-          <h2 className="text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Configuration
-          </h2>
-          <dl className="mt-2 space-y-1 font-mono text-sm text-zinc-800 dark:text-zinc-200">
-            <div className="flex gap-2">
-              <dt className="shrink-0 text-zinc-500 dark:text-zinc-400">
-                NEXT_PUBLIC_AUDITOR_BACKEND_URL =
-              </dt>
-              <dd className="break-all">{backendUrl}</dd>
-            </div>
-            <div className="flex gap-2">
-              <dt className="shrink-0 text-zinc-500 dark:text-zinc-400">
-                Contract =
-              </dt>
-              <dd>v1.0.1 (read-only this layer)</dd>
-            </div>
-          </dl>
-        </section>
+      <main className="flex flex-1 flex-col">
+        <AuditorScreen backendUrl={backendUrl} />
       </main>
     </div>
   );

@@ -8,6 +8,7 @@
     "start": "next start -p 3001",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "test": "node --test app/lib/__tests__/auditor-api.test.mjs",
     "verify:contract": "node scripts/verify-contract.mjs"
   },
   "dependencies": {
