@@ -38,10 +38,12 @@ export default function SummaryPanel({
   backendUrl,
   datasetId,
   dataset,
+  onTariffSaved,
 }: {
   backendUrl: string;
   datasetId: string | null;
   dataset: DatasetItem | null;
+  onTariffSaved?: () => void;
 }) {
   const [summary, setSummary] = useState<DatasetSummary | null>(null);
   const [loading, setLoading] = useState(false);
@@ -161,6 +163,7 @@ export default function SummaryPanel({
         return;
       }
       await load(submittedId); // reload only after the server confirms
+      onTariffSaved?.(); // let findings refetch recomputed costs (no rerun)
     } catch (err) {
       if (!mounted.current) return;
       // Input preserved; error shown.
@@ -170,7 +173,7 @@ export default function SummaryPanel({
     } finally {
       if (mounted.current) setSaving(false);
     }
-  }, [datasetId, rateInput, saving, backendUrl, load]);
+  }, [datasetId, rateInput, saving, backendUrl, load, onTariffSaved]);
 
   useEffect(() => {
     if (!snapshot) return;

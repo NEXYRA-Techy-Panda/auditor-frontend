@@ -89,9 +89,13 @@ tariff save during selection change, and upload completion after a manual
 selection. None of these have been observed in a browser yet.
 
 ## 7. P014 printable summary (browser-pending)
-
 The UI offers a "Print summary" action producing a browser-print snapshot
 from fetched data (eligibility-gated, fixed at click time). Still to witness
 in a browser: print preview pagination with a real dataset, keyboard flow to
 and from the print action, and a long-content example (many gaps/devices).
 SSR markup and built-CSS inspection do not prove print pagination.
+## 8. P019 analysis findings (Agent A, 2026-09-24)
+
+- P006 follow-ups resolved without backend changes: summary synthetic provenance IS now supplied (P015-era backend returns synthetic/synthetic_label; adapter parses the flag); gaps still always [] per P015 docs, so "None reported" stands and absent still means "Not supplied".
+- Findings UI wired to committed P015 (32d88be): submit/poll/terminal/pager/tariff-refetch verified mock-side (16 committed tests) plus live submit-to-failed wiring 6/6 on an isolated temp backend (no Python, so completed-findings rendering stays mock-verified).
+- Still pending a Python service + browser: live completed-findings display, pager interaction, and print-with-findings review (findings intentionally stay out of the printable dataset summary).

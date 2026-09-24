@@ -2,7 +2,7 @@
 
 ## 0. Continuity and current layer (F0.1, 2026-09-24)
 
-- Current layer: **P017 F5-UI** (real auditor integration, Agent A —
+- Current layer: **P019 A4** (analysis findings, Agent A —
   OpenCode) — status **completed**, review **pending**. Contract: **1.0.1
   authoritative, read-only**.
 - P001 F4-A addendum (completed, review pending): browser-side connection
@@ -36,6 +36,13 @@
   build green, HTTP-200 shells, print CSS in built bundle; real backend down;
   print preview/keyboard/browser unverified. Details in
   [P014 evidence](P014_DATASET_SUMMARY_EVIDENCE.md). History preserved.
+- P019 A4 addendum (completed, review pending): findings wired to committed
+  P015 job API (submit/poll/terminal/pager/tariff-refetch; rule-labeled
+  cards; verbatim totals; mismatch/stale guards). Verified: 52/52 tests,
+  75/75 contract, typecheck/lint(0 errors)/build green, HTTP-200 markup;
+  live submit→failed wiring 6/6 on isolated backend (no Python, so completed
+  findings stay mock-verified); browser interaction unverified. Details in
+  [P019 evidence](P019_ANALYSIS_FINDINGS_UI_EVIDENCE.md). History preserved.
 - P017 F5-UI addendum (completed, review pending): aligned to committed P006
   (67998d5, isolated temp backend + scratch DBs): envelope-only parsing,
   details.report extraction, coverage/gaps semantics, stale-print block.

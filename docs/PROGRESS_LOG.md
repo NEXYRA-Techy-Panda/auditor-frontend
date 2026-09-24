@@ -368,3 +368,30 @@ correction entry; do not rewrite history.
 - Real backend :4001 never touched; nothing uploaded outside scratch DBs; test backends stopped, ports free. Browser/print interaction unverified. Sibling repos untouched. Review pending; no approval claimed.
 - Next action: commit, push main, verify remote hash; return P017 evidence. Stop after P017.
 - Commit references: P014 pushed; P017 recorded after push.
+---
+
+## 2026-09-24 22:12:25 +05:30 (IST) - P019 A4 started (actual, Agent A - OpenCode)
+
+- P017 accepted based on evidence. Browser/print + prior live checks still pending (recorded).
+- Exclusive writer: auditor-frontend only. Codex (backend/P015) and Claude Code (ML/P016) own their repos - committed reads only, no writes/processes.
+- Startup: AGENTS.md absent; full context + P017 evidence + checklist + implementation read; main clean at expected baseline 45c657e, fetch clean.
+- P015 confirmed committed at 32d88be with AUDITOR_API_EXAMPLES.md + job routes read (submit 202, paginated job GET, tariff-derived costs, rule method). Taking the real-wiring branch.
+- P006 follow-up notes: summary synthetic now supplied by P015-era backend (parse + display label); gaps still always [] (None reported vs Not supplied stands).
+- Next action: implement analysis lib + findings UI + committed tests.
+- Review status: pending. P019 commit: none yet.
+---
+
+## 2026-09-24 22:30:00 +05:30 (IST) - P019 implementation complete, verifying (actual, Agent A - OpenCode)
+
+- analysis.ts adapter (P015 shapes, envelope, pagination helpers) + 16 committed tests; findings panel (states, polling, pager, totals, warnings, exclusions, cards, empty/failed handling, tariff refetch); screen wiring.
+- 52/52 tests (36+16); typecheck clean; lint 0 errors (1 pre-existing warning); 75/75 contract.
+- Next: build, serve + HTTP markup, real-backend probe (read-only), docs, commit, push.
+- Review status: pending.
+---
+
+## 2026-09-24 22:35:00 +05:30 (IST) - P019 A4 completed (actual, Agent A - OpenCode)
+
+- Findings wired to committed P015: analysis lib + panel + screen wiring + tariff refetch; 16 committed tests.
+- 52/52 tests; 75/75 contract; typecheck/lint(0 errors)/build green; HTTP-200 markup; live submit-to-failed wiring 6/6 on isolated temp backend (scratch DB, stopped); completed findings mock-verified (no Python); browser interaction unverified. Sibling repos untouched. Review pending; no approval claimed.
+- Next action: commit, push main, verify remote hash; return P019 evidence. Stop after P019.
+- Commit references: P017 pushed; P019 recorded after push.

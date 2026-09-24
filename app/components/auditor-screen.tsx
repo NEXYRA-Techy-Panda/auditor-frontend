@@ -10,12 +10,14 @@ import { useCallback, useRef, useState } from "react";
 import ConnectionPanel from "./connection-panel";
 import DatasetsPanel from "./datasets-panel";
 import SummaryPanel from "./summary-panel";
+import FindingsPanel from "./findings-panel";
 import UploadPanel from "./upload-panel";
 import { createSelectionRevision, type DatasetItem } from "../lib/auditor-api";
 
 export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [listToken, setListToken] = useState(0);
+  const [tariffToken, setTariffToken] = useState(0);
   const [datasets, setDatasets] = useState<DatasetItem[]>([]);
   const revision = useRef(createSelectionRevision());
 
@@ -25,6 +27,10 @@ export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
   }, []);
 
   const captureRevision = useCallback(() => revision.current.current(), []);
+
+  const handleTariffSaved = useCallback(() => {
+    setTariffToken((t) => t + 1); // findings refetch recomputed costs
+  }, []);
 
   const handleListChange = useCallback((items: DatasetItem[]) => {
     setDatasets(items);
@@ -63,6 +69,12 @@ export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
           backendUrl={backendUrl}
           datasetId={selectedId}
           dataset={datasets.find((d) => d.dataset_id === selectedId) ?? null}
+          onTariffSaved={handleTariffSaved}
+        />
+        <FindingsPanel
+          backendUrl={backendUrl}
+          datasetId={selectedId}
+          tariffToken={tariffToken}
         />
       </div>
       <div className="flex flex-col gap-6">
