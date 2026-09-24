@@ -2,7 +2,7 @@
 
 ## 0. Continuity and current layer (F0.1, 2026-09-24)
 
-- Current layer: **P014 A3** (printable summary, Agent A —
+- Current layer: **P017 F5-UI** (real auditor integration, Agent A —
   OpenCode) — status **completed**, review **pending**. Contract: **1.0.1
   authoritative, read-only**.
 - P001 F4-A addendum (completed, review pending): browser-side connection
@@ -36,6 +36,14 @@
   build green, HTTP-200 shells, print CSS in built bundle; real backend down;
   print preview/keyboard/browser unverified. Details in
   [P014 evidence](P014_DATASET_SUMMARY_EVIDENCE.md). History preserved.
+- P017 F5-UI addendum (completed, review pending): aligned to committed P006
+  (67998d5, isolated temp backend + scratch DBs): envelope-only parsing,
+  details.report extraction, coverage/gaps semantics, stale-print block.
+  Verified: A–F real checks 17/17, committed check:live 9/9 twice, 36/36
+  unit tests, 75/75 contract, typecheck/lint(0 errors)/build green. CORS
+  headers checked over HTTP only; browser/print interaction unverified.
+  Details in [P017 evidence](P017_AUDITOR_REAL_INTEGRATION_EVIDENCE.md).
+  History preserved.
 - P011 addendum (completed, review pending): backend aa53d0c inspected
   (P006 uncommitted) → checklist branch, UI preserved; created
   [AUDITOR_INTEGRATION_CHECKLIST.md](AUDITOR_INTEGRATION_CHECKLIST.md) and

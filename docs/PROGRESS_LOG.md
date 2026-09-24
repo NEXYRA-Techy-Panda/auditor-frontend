@@ -321,3 +321,50 @@ correction entry; do not rewrite history.
 - Real backend :4001 refused; nothing uploaded; print preview/keyboard/browser unverified. Sibling repos untouched. Review pending; no approval claimed.
 - Next action: commit, push main, verify remote hash; return P014 evidence. Stop after P014.
 - Commit references: P012 pushed; P014 recorded after push.
+---
+
+## 2026-09-24 21:11:56 +05:30 (IST) - P017 F5-UI started (actual, Agent A - OpenCode)
+
+- P014 accepted based on evidence. Browser print and prior live-backend compatibility remain pending (recorded).
+- Exclusive writer: auditor-frontend only. Codex (P015) and Claude Code (P016) own their repos - no writes, installs, DB access, or process interference. Contracts unchanged.
+- Startup: AGENTS.md absent; full context + P014 evidence + checklist + implementation read; main clean at expected baseline 78e1626, fetch clean.
+- Backend commit 67998d5 verified; exported to task-owned temp dir (two-step archive: PowerShell-piped tar corrupts the stream).
+- Next action: read P006 routes/evidence/config in the temp export.
+- Review status: pending. P017 commit: none yet.
+---
+
+## 2026-09-24 21:20:00 +05:30 (IST) - P006 surface established (actual, Agent A - OpenCode)
+
+- Read P006 routes/imports.ts, envelope/errors, config, database.ts (list/summary/tariff), validation errors, and P006_F5_A_EVIDENCE.md in the temp export. Backend repo untouched.
+- All five questions answered: every response uses {data,meta} (errors {error}); import 201/200 with already_imported flag + report (incl. additional_errors); 422 details.report carries issue list (field/row); 409 identity conflict; list is {data:[...]} newest-first, no pagination, all 5 fields; summary always has coverage + gaps[] (currently always empty), cost/tariff null when unset; tariff echoes submitted value, 404/422.
+- Required adapter corrections: require {data} envelope (drop bare/items/datasets alternatives); extract details.report from 422/400 into VALIDATION_REJECTED; parse coverage; gaps absent->null; keep synthetic explicit-only.
+- Next: align adapter + UI + tests, then run isolated backend and checks A-F.
+- Review status: pending.
+---
+
+## 2026-09-24 21:30:00 +05:30 (IST) - P017 adapter aligned, unit suite green (actual, Agent A - OpenCode)
+
+- Adapter now requires {data} envelopes; extracts 422/400 details.report into VALIDATION_REJECTED (with field/row); parses coverage + gaps-null + additional_errors; tightened list parsing.
+- UI: coverage/gap semantics in summary + report (structured gap text via describeGap); print blocked after failed refresh (defect found + fixed).
+- 36/36 tests; typecheck/lint(0 errors)/build/75-75 green.
+- Next: isolated backend (scratch DB, unused port, CORS origin) + checks A-F.
+- Review status: pending.
+---
+
+## 2026-09-24 21:28:00 +05:30 (IST) - Isolated P006 backend running (actual, Agent A - OpenCode)
+
+- Pinned commit 67998d5 exported to task-owned temp dir; npm ci --ignore-scripts (better-sqlite3 needs VS to compile, but the tarball bundles win32 prebuilds - verified working; nothing copied from sibling repos).
+- Built with tsc; running PID 18084 on 127.0.0.1:4566 with scratch DB .../p017-data/scratch.sqlite, FRONTEND_ORIGIN=http://localhost:3001, no Python needed.
+- Health 200: {status ok, contract 1.0.1, ml_reachable not_checked}.
+- Next: checks A-F through the frontend adapter + CORS headers.
+- Review status: pending.
+---
+
+## 2026-09-24 21:35:00 +05:30 (IST) - P017 F5-UI completed (actual, Agent A - OpenCode)
+
+- P006 67998d5 exported read-only to temp; npm ci --ignore-scripts (bundled win32 prebuild works); built + ran isolated (port 4566, scratch DBs, CORS origin :3001, no Python).
+- All five API questions resolved from source+evidence; adapter/UI aligned (envelopes, details extraction, coverage/gaps, stale-print block).
+- A-F real checks 17/17 (fresh DB); committed check:live 9/9 twice (repeatable, skips cleanly unset); 36/36 unit tests; 75/75 contract; typecheck/lint(0 errors)/build green. CORS headers HTTP-checked only.
+- Real backend :4001 never touched; nothing uploaded outside scratch DBs; test backends stopped, ports free. Browser/print interaction unverified. Sibling repos untouched. Review pending; no approval claimed.
+- Next action: commit, push main, verify remote hash; return P017 evidence. Stop after P017.
+- Commit references: P014 pushed; P017 recorded after push.

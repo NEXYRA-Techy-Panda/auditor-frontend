@@ -1,10 +1,20 @@
-# Auditor integration checklist (Agent A — OpenCode, P011)
+# Auditor integration checklist (Agent A — OpenCode, P011; P017 update below)
 
 Future local verification of auditor-frontend (P007 UI) against a real
 auditor-backend. Status as of P011: **not executed** — the backend's upload
 endpoints (P006, Codex) are uncommitted work in progress. Last committed
 backend inspected: `aa53d0c` (P003 SQLite foundation; only `GET /api/v1/health`
 plus DB layer in committed `src/`). All items below are mock-only until run.
+
+## P017 execution record (2026-09-24, isolated backend at pinned P006 commit 67998d5)
+
+Backend items §1 (1–3), §2 (4–8) executed against an isolated temp backend
+with scratch DBs — all passed (see `docs/P017_AUDITOR_REAL_INTEGRATION_EVIDENCE.md`):
+201/200 dedup, 0.03 kWh, ₹10→₹0.30, zero-vs-unset, rejection without partial
+import. Browser items (§3 items 9–13, §7) remain NOT executed — no browser
+capability. The five open questions are resolved (envelope-only responses,
+already_imported shape, details-carried validation, coverage+gaps semantics,
+tariff echo/404/422); adapter aligned.
 
 ## 0. Preconditions
 

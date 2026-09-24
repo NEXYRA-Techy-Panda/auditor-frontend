@@ -4,10 +4,16 @@
 // navigation, charts, findings, forecasts, or recommendations.
 
 import type { ReportSnapshot } from "../lib/auditor-api";
+import { describeGap } from "../lib/auditor-api";
 
 function value(v: string | number | null, unit = ""): string {
   if (v === null) return "Not supplied by the backend";
   return unit ? `${v} ${unit}` : String(v);
+}
+
+/** Structured gap rendering shared with the summary panel. */
+function gapText(gap: unknown): string {
+  return describeGap(gap);
 }
 
 export default function ReportView({
@@ -55,10 +61,6 @@ export default function ReportView({
             </dd>
           </div>
         </dl>
-        <p>
-          Data period: not supplied by the backend — no calendar month is
-          inferred and full coverage is not claimed.
-        </p>
       </section>
 
       <section>
@@ -95,14 +97,26 @@ export default function ReportView({
 
       <section>
         <h2>Data quality</h2>
-        {snapshot.gaps.length === 0 ? (
+        {snapshot.coverage ? (
+          <p>
+            Data period: {snapshot.coverage.start_utc} to{" "}
+            {snapshot.coverage.end_utc} (UTC),{" "}
+            {snapshot.coverage.device_intervals} device intervals and{" "}
+            {snapshot.coverage.room_intervals} room intervals.
+          </p>
+        ) : (
+          <p>Data period: not supplied by the backend.</p>
+        )}
+        {snapshot.gaps === null ? (
+          <p>Coverage gaps: not supplied by the backend.</p>
+        ) : snapshot.gaps.length === 0 ? (
           <p>No coverage gaps reported by the backend.</p>
         ) : (
           <>
             <p>{snapshot.gaps.length} coverage gap(s) reported:</p>
             <ul>
               {snapshot.gaps.map((g, i) => (
-                <li key={i}>{JSON.stringify(g)}</li>
+                <li key={i}>{gapText(g)}</li>
               ))}
             </ul>
           </>

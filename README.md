@@ -34,7 +34,8 @@ npm install          # install dependencies
 npm run dev          # develop on http://localhost:3001
 npm run typecheck    # tsc --noEmit
 npm run lint         # eslint (0 errors)
-npm run test         # node:test adapter checks (18/18)
+npm run test         # node:test adapter checks (36/36)
+npm run check:live   # opt-in live checks vs AUDITOR_TEST_BACKEND (skips cleanly if unset)
 npm run verify:contract  # dependency-free contract checks (75/75)
 npm run build        # production build
 npm run start        # serve production on http://localhost:3001

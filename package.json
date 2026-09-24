@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "node --test app/lib/__tests__/auditor-api.test.mjs",
+    "check:live": "node scripts/check-live-integration.mjs",
     "verify:contract": "node scripts/verify-contract.mjs"
   },
   "dependencies": {

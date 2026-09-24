@@ -12,6 +12,7 @@ import {
   ApiError,
   buildReportSnapshot,
   createRequestTracker,
+  describeGap,
   getSummary,
   parseTariffInput,
   printEligibility,
@@ -26,6 +27,11 @@ import ReportView from "./report-view";
 
 function formatInr(value: number): string {
   return `₹${value.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+}
+
+/** Render a structured gap object meaningfully — never "[object Object]". */
+function gapText(gap: unknown): string {
+  return describeGap(gap);
 }
 
 export default function SummaryPanel({
@@ -188,11 +194,17 @@ export default function SummaryPanel({
     );
   }
 
+  const current = summary && summary.dataset_id === datasetId ? summary : null;
+  const previous =
+    summary && summary.dataset_id !== datasetId ? summary : null;
+  const showError = error && errorForId === datasetId ? error : null;
+
   const eligibility = printEligibility({
     selectedId: datasetId,
     summary,
     loading,
     saving,
+    hasError: showError !== null,
   });
 
   const openPrint = () => {
@@ -210,16 +222,12 @@ export default function SummaryPanel({
         : null,
       loading,
       saving,
+      hasError: showError !== null,
       fetchedAtIso,
       generatedAtIso: new Date().toISOString(),
     });
     if (snap) setSnapshot(snap);
   };
-
-  const current = summary && summary.dataset_id === datasetId ? summary : null;
-  const previous =
-    summary && summary.dataset_id !== datasetId ? summary : null;
-  const showError = error && errorForId === datasetId ? error : null;
 
   return (
     <section
@@ -394,14 +402,53 @@ function SummaryValues({
             : "Not set"}
         </dd>
       </div>
-      {summary.gaps.length > 0 && (
+      {summary.coverage ? (
+        <div className="flex gap-2">
+          <dt className="shrink-0 text-zinc-500 dark:text-zinc-400">
+            Data period
+          </dt>
+          <dd className="font-mono text-xs break-all text-zinc-700 dark:text-zinc-300">
+            {summary.coverage.start_utc} → {summary.coverage.end_utc} (UTC)
+            · {summary.coverage.device_intervals} device intervals ·{" "}
+            {summary.coverage.room_intervals} room intervals
+          </dd>
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          <dt className="shrink-0 text-zinc-500 dark:text-zinc-400">
+            Data period
+          </dt>
+          <dd className="font-mono text-xs text-zinc-500 dark:text-zinc-400">
+            Not supplied by the backend
+          </dd>
+        </div>
+      )}
+      {summary.gaps === null ? (
+        <div className="flex gap-2">
+          <dt className="shrink-0 text-zinc-500 dark:text-zinc-400">
+            Coverage gaps
+          </dt>
+          <dd className="font-mono text-xs text-zinc-500 dark:text-zinc-400">
+            Not supplied by the backend
+          </dd>
+        </div>
+      ) : summary.gaps.length === 0 ? (
+        <div className="flex gap-2">
+          <dt className="shrink-0 text-zinc-500 dark:text-zinc-400">
+            Coverage gaps
+          </dt>
+          <dd className="font-mono text-xs text-zinc-700 dark:text-zinc-300">
+            None reported
+          </dd>
+        </div>
+      ) : (
         <div className="flex gap-2">
           <dt className="shrink-0 text-zinc-500 dark:text-zinc-400">
             Coverage gaps
           </dt>
           <dd className="font-mono text-xs break-all text-zinc-700 dark:text-zinc-300">
             {summary.gaps.length} reported:{" "}
-            {summary.gaps.map((g) => JSON.stringify(g)).join("; ")}
+            {summary.gaps.map((g) => gapText(g)).join("; ")}
           </dd>
         </div>
       )}

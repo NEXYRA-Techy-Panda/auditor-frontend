@@ -10,6 +10,7 @@ import {
   buildReportSnapshot,
   createRequestTracker,
   createSelectionRevision,
+  describeGap,
   getSummary,
   listDatasets,
   parseDatasetList,
@@ -31,7 +32,7 @@ const IMPORT_OK = {
   dataset_id: "ds-1",
   run_id: "run-1",
   status: "accepted",
-  report: { errors: [], warnings: ["w1"], duplicates_deduped: 2 },
+  report: { errors: [], warnings: ["w1"], duplicates_deduped: 2, additional_errors: false },
 };
 
 describe("multipart upload", () => {
@@ -44,7 +45,7 @@ describe("multipart upload", () => {
       assert.ok(init.body instanceof FormData);
       assert.equal(init.body.get("file")?.name, "meter.csv");
       assert.ok(!init.headers || !init.headers["Content-Type"]);
-      return okJson(IMPORT_OK);
+      return okJson({ data: IMPORT_OK });
     };
     const file = new File(["a,b\n1,2"], "meter.csv", { type: "text/csv" });
     const res = await uploadDataset(ORIGIN, file, file.name, mockFetch, 5000);
@@ -67,7 +68,7 @@ describe("multipart upload", () => {
 
   it("honours an already-imported acknowledgement", async () => {
     const mockFetch = async () =>
-      okJson({ ...IMPORT_OK, status: "already_imported", already_imported: true });
+      okJson({ data: { ...IMPORT_OK, status: "already_imported", already_imported: true } });
     const res = await uploadDataset(
       ORIGIN,
       new Blob(["x"]),
@@ -83,20 +84,83 @@ describe("multipart upload", () => {
       errors: [{ message: "bad interval", field: "device_intervals[3]", row: 12 }],
       warnings: [],
       duplicates_deduped: 0,
+      additional_errors: false,
     };
     const mockFetch = async () =>
-      okJson({ dataset_id: "ds-9", run_id: "r", status: "rejected", report });
+      okJson({ data: { dataset_id: "ds-9", run_id: "r", status: "rejected", report } });
     await assert.rejects(
       uploadDataset(ORIGIN, new Blob(["x"]), "f.csv", mockFetch, 5000),
       (e) => e instanceof ApiError && e.code === "VALIDATION_REJECTED" && e.report.errors[0].row === 12,
     );
   });
 
+  it("extracts the 422 details report into the rejection", async () => {
+    const details = {
+      errors: [{ field: "device_intervals[0].energy_kwh", message: "Does not reconcile" }],
+      warnings: [],
+      duplicates_deduped: 0,
+      additional_errors: false,
+    };
+    const bad = async () => ({
+      ok: false,
+      status: 422,
+      json: async () => ({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Uploaded dataset failed validation",
+          field: "device_intervals[0].energy_kwh",
+          details,
+        },
+      }),
+    });
+    await assert.rejects(
+      uploadDataset(ORIGIN, new Blob(["x"]), "f.csv", bad, 5000),
+      (e) => {
+        assert.ok(e instanceof ApiError && e.code === "VALIDATION_REJECTED");
+        assert.equal(e.report.errors[0].field, "device_intervals[0].energy_kwh");
+        assert.equal(e.field, "device_intervals[0].energy_kwh");
+        return true;
+      },
+    );
+  });
+
+  it("surfaces truncated issue lists without inventing issues", async () => {
+    const bad = async () => ({
+      ok: false,
+      status: 422,
+      json: async () => ({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Uploaded dataset failed validation",
+          details: {
+            errors: [{ field: "f", message: "m" }],
+            warnings: [],
+            duplicates_deduped: 0,
+            additional_errors: true,
+          },
+        },
+      }),
+    });
+    await assert.rejects(
+      uploadDataset(ORIGIN, new Blob(["x"]), "f.csv", bad, 5000),
+      (e) => {
+        assert.ok(e instanceof ApiError && e.report.additional_errors === true);
+        return true;
+      },
+    );
+  });
+
   it("maps 409 conflict and 413 too-large", async () => {
-    const m409 = async () => ({ ok: false, status: 409, json: async () => ({}) });
+    const m409 = async () => ({
+      ok: false,
+      status: 409,
+      json: async () => ({
+        error: { code: "CONFLICT", message: "Export identity conflict: semantic content differs" },
+      }),
+    });
     await assert.rejects(
       uploadDataset(ORIGIN, new Blob(["x"]), "f", m409, 5000),
-      (e) => e instanceof ApiError && e.code === "CONFLICT",
+      (e) => e instanceof ApiError && e.code === "CONFLICT" && /identity conflict/.test(e.message),
     );
     const m413 = async () => ({ ok: false, status: 413, json: async () => ({}) });
     await assert.rejects(
@@ -137,20 +201,23 @@ describe("multipart upload", () => {
 });
 
 describe("dataset list and selection", () => {
-  it("parses bare and enveloped lists", async () => {
+  it("parses enveloped lists and rejects bare or alternate shapes", async () => {
     const items = [{ dataset_id: "a", run_id: "r1", scenario_id: "original" }];
-    assert.deepEqual(await listDatasets(ORIGIN, async () => okJson(items), 5000), [
+    assert.deepEqual(await listDatasets(ORIGIN, async () => okJson({ data: items }), 5000), [
       { dataset_id: "a", run_id: "r1", scenario_id: "original" },
     ]);
-    assert.deepEqual(
-      (await listDatasets(ORIGIN, async () => okJson({ data: items }), 5000)).length,
-      1,
-    );
+    // Bare arrays and alternate keys are rejected so backend drift is loud.
+    for (const bad of [items, { items }, { datasets: items }, { data: "x" }]) {
+      await assert.rejects(
+        listDatasets(ORIGIN, async () => okJson(bad), 5000),
+        (e) => e instanceof ApiError && e.code === "BAD_RESPONSE",
+      );
+    }
   });
 
   it("rejects malformed lists", async () => {
     await assert.rejects(
-      listDatasets(ORIGIN, async () => okJson([{ run_id: "x" }]), 5000),
+      listDatasets(ORIGIN, async () => okJson({ data: [{ run_id: "x" }] }), 5000),
       (e) => e instanceof ApiError && e.code === "BAD_RESPONSE",
     );
   });
@@ -164,45 +231,70 @@ describe("dataset list and selection", () => {
   });
 
   it("parseDatasetList keeps documented metadata", () => {
-    const parsed = parseDatasetList([
-      { dataset_id: "a", run_id: "r", interval_seconds: 60, imported_utc: "2026-09-24T00:00:00Z" },
-    ]);
+    const parsed = parseDatasetList({
+      data: [
+        { dataset_id: "a", run_id: "r", interval_seconds: 60, imported_utc: "2026-09-24T00:00:00Z" },
+      ],
+    });
     assert.equal(parsed[0].interval_seconds, 60);
     assert.equal(parsed[0].imported_utc, "2026-09-24T00:00:00Z");
   });
 });
 
 describe("summary and tariff", () => {
-  it("parses full summaries", async () => {
+  it("parses full summaries with coverage", async () => {
     const s = await getSummary(
       ORIGIN,
       "ds-1",
       async (url) => {
         assert.ok(url.endsWith("/api/v1/imports/ds-1/summary"));
         return okJson({
-          dataset_id: "ds-1",
-          energy_kwh: 12.5,
-          cost_inr: 125,
-          tariff_inr_per_kwh: 10,
-          gaps: [],
+          data: {
+            dataset_id: "ds-1",
+            energy_kwh: 12.5,
+            cost_inr: 125,
+            tariff_inr_per_kwh: 10,
+            coverage: {
+              start_utc: "2026-09-21T03:30:00Z",
+              end_utc: "2026-09-21T03:32:00Z",
+              device_intervals: 4,
+              room_intervals: 4,
+            },
+            gaps: [],
+          },
         });
       },
       5000,
     );
     assert.equal(s.energy_kwh, 12.5);
     assert.equal(s.cost_inr, 125);
+    assert.deepEqual(s.coverage, {
+      start_utc: "2026-09-21T03:30:00Z",
+      end_utc: "2026-09-21T03:32:00Z",
+      device_intervals: 4,
+      room_intervals: 4,
+    });
+    assert.deepEqual(s.gaps, []);
   });
 
-  it("unset cost/tariff stay null (never zero)", async () => {
+  it("unset cost/tariff stay null (never zero); absent gaps/coverage stay null", async () => {
     const s = await getSummary(
       ORIGIN,
       "ds-1",
-      async () => okJson({ dataset_id: "ds-1", energy_kwh: 12.5 }),
+      async () => okJson({ data: { dataset_id: "ds-1", energy_kwh: 12.5 } }),
       5000,
     );
     assert.equal(s.cost_inr, null);
     assert.equal(s.tariff_inr_per_kwh, null);
-    assert.deepEqual(parseSummary({ dataset_id: "x", energy_kwh: 1 }).gaps, []);
+    assert.equal(s.coverage, null);
+    assert.equal(s.gaps, null);
+  });
+
+  it("rejects bare summary bodies", async () => {
+    await assert.rejects(
+      getSummary(ORIGIN, "ds-1", async () => okJson({ dataset_id: "ds-1", energy_kwh: 1 }), 5000),
+      (e) => e instanceof ApiError && e.code === "BAD_RESPONSE",
+    );
   });
 
   it("tariff validation: blank rejected, zero accepted, negatives rejected", () => {
@@ -222,7 +314,7 @@ describe("summary and tariff", () => {
       10,
       async (url, init) => {
         seen = { url, init };
-        return okJson({ dataset_id: "ds-1", inr_per_kwh: 10 });
+        return okJson({ data: { dataset_id: "ds-1", inr_per_kwh: 10 } });
       },
       5000,
     );
@@ -237,6 +329,20 @@ describe("summary and tariff", () => {
       throw new TypeError("fetch failed");
     };
     await assert.rejects(updateTariff(ORIGIN, "ds-1", 5, down, 5000), ApiError);
+  });
+
+  it("tariff 422 carries field detail", async () => {
+    const bad = async () => ({
+      ok: false,
+      status: 422,
+      json: async () => ({
+        error: { code: "VALIDATION_ERROR", message: "inr_per_kwh must be a finite nonnegative number", field: "inr_per_kwh" },
+      }),
+    });
+    await assert.rejects(updateTariff(ORIGIN, "ds-1", 5, bad, 5000), (e) => {
+      assert.ok(e instanceof ApiError && e.status === 422 && e.field === "inr_per_kwh");
+      return true;
+    });
   });
 });
 
@@ -262,7 +368,7 @@ describe("race guards (deferred mocks, same mechanism the UI uses)", () => {
     const gateB = deferred();
     const fetchFor = (gate, body) => async () => {
       await gate.promise;
-      return { ok: true, status: 200, json: async () => body };
+      return { ok: true, status: 200, json: async () => ({ data: body }) };
     };
     const applied = [];
     const idA = tracker.issue();
@@ -315,10 +421,11 @@ describe("race guards (deferred mocks, same mechanism the UI uses)", () => {
   });
 
   it("synthetic flag is explicit-only, never inferred", () => {
-    assert.equal(parseSummary({ dataset_id: "x", energy_kwh: 1, synthetic: true }).synthetic, true);
-    assert.equal(parseSummary({ dataset_id: "x", energy_kwh: 1 }).synthetic, null);
-    assert.equal(parseSummary({ dataset_id: "x", energy_kwh: 1, synthetic: false }).synthetic, null);
-    assert.equal(parseSummary({ dataset_id: "x", energy_kwh: 1, synthetic: "yes" }).synthetic, null);
+    const s = (synthetic) => parseSummary({ data: { dataset_id: "x", energy_kwh: 1, synthetic } });
+    assert.equal(s(true).synthetic, true);
+    assert.equal(s(undefined).synthetic, null);
+    assert.equal(s(false).synthetic, null);
+    assert.equal(s("yes").synthetic, null);
   });
 });
 
@@ -336,6 +443,7 @@ describe("print snapshot and eligibility", () => {
     dataset: { run_id: "run-1", scenario_id: "original" },
     loading: false,
     saving: false,
+    hasError: false,
     fetchedAtIso: "2026-09-24T00:01:00Z",
     generatedAtIso: "2026-09-24T00:02:00Z",
   };
@@ -366,6 +474,16 @@ describe("print snapshot and eligibility", () => {
       null,
     );
     assert.equal(printEligibility({ ...base, summary: null }).eligible, false);
+  });
+
+  it("refuses stale retained data after a failed refresh", () => {
+    // Same identity, settled flags, but an unresolved scoped error:
+    // retained values must not become printable as current.
+    assert.equal(buildReportSnapshot({ ...base, hasError: true }), null);
+    assert.match(
+      printEligibility({ ...base, hasError: true }).reason,
+      /refresh failed/,
+    );
   });
 
   it("preserves unset versus explicit zero tariff", () => {
@@ -410,5 +528,34 @@ describe("print snapshot and eligibility", () => {
       buildReportSnapshot({ ...base, summary: { ...base.summary, synthetic: null } }).synthetic,
       null,
     );
+  });
+
+  it("carries coverage into the snapshot when supplied", () => {
+    const coverage = {
+      start_utc: "2026-09-21T03:30:00Z",
+      end_utc: "2026-09-21T03:32:00Z",
+      device_intervals: 4,
+      room_intervals: 4,
+    };
+    const snap = buildReportSnapshot({
+      ...base,
+      summary: { ...base.summary, coverage },
+    });
+    assert.deepEqual(snap.coverage, coverage);
+    assert.equal(
+      buildReportSnapshot({ ...base, summary: { ...base.summary, coverage: null } }).coverage,
+      null,
+    );
+  });
+
+  it("renders structured gaps meaningfully, never [object Object]", () => {
+    assert.equal(describeGap("plain text"), "plain text");
+    assert.equal(describeGap(7), "7");
+    assert.equal(
+      describeGap({ room_id: "room-a", start_utc: "2026-09-21T03:30:00Z", extra: 1 }),
+      "room_id: room-a, start_utc: 2026-09-21T03:30:00Z",
+    );
+    assert.equal(describeGap({}), "{}");
+    assert.equal(describeGap(null), "null");
   });
 });

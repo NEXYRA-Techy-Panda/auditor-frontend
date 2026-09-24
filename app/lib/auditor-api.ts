@@ -21,6 +21,8 @@ export interface ImportReport {
   errors: ValidationIssue[];
   warnings: string[];
   duplicates_deduped: number;
+  /** True when the backend truncated the issue list (P006 caps at 100). */
+  additional_errors: boolean;
 }
 
 export interface ImportResult {
@@ -44,7 +46,14 @@ export interface DatasetSummary {
   energy_kwh: number;
   cost_inr: number | null;
   tariff_inr_per_kwh: number | null;
-  gaps: unknown[];
+  coverage: {
+    start_utc: string;
+    end_utc: string;
+    device_intervals: number;
+    room_intervals: number;
+  } | null;
+  /** Null when the response carries no gap information (not "no gaps"). */
+  gaps: unknown[] | null;
   /**
    * True only when the backend explicitly marks the dataset synthetic.
    * Absent/false means unknown — never infer that imported data is synthetic.
@@ -56,12 +65,27 @@ export interface DatasetSummary {
 export class ApiError extends Error {
   status: number | null;
   code: string | null;
+  /** Single field/row reference when the backend supplied one. */
+  field?: string;
+  row?: number;
+  /** Raw server `details` payload when the backend supplied one. */
+  details?: unknown;
+  /** Parsed import report, attached to validation rejections. */
+  report?: ImportReport;
+  /** Dataset the rejection refers to, when known. */
+  datasetId?: string;
 
-  constructor(message: string, status: number | null, code: string | null = null) {
+  constructor(
+    message: string,
+    status: number | null,
+    code: string | null = null,
+    details?: unknown,
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.code = code;
+    if (details !== undefined) this.details = details;
   }
 }
 
@@ -87,11 +111,12 @@ function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
 
-/** Accept a bare body or a { data } envelope; anything else is malformed. */
-function unwrap(json: unknown): Record<string, unknown> | null {
+/** P006 uses the success envelope on every route: { data, meta }. Bare
+ * bodies and alternate list keys are rejected so backend drift is loud. */
+function requireData(json: unknown): Record<string, unknown> | null {
   if (!isRecord(json)) return null;
-  if (isRecord(json.data)) return json.data;
-  return json;
+  if (!isRecord(json.data)) return null;
+  return json.data;
 }
 
 function reqString(o: Record<string, unknown>, key: string): string | null {
@@ -116,7 +141,8 @@ function optFinite(o: Record<string, unknown>, key: string): number | null {
 }
 
 function parseIssue(v: unknown): ValidationIssue | null {
-  if (typeof v === "string") return { message: v };
+  // P006 issues are objects with message + field and optional row.
+  // Anything else is malformed — never coerced.
   if (!isRecord(v)) return null;
   const message = reqString(v, "message");
   if (!message) return null;
@@ -140,11 +166,18 @@ function parseReport(v: unknown): ImportReport | null {
   if (!v.warnings.every((w) => typeof w === "string")) return null;
   const dup = v.duplicates_deduped;
   if (typeof dup !== "number" || !Number.isInteger(dup) || dup < 0) return null;
-  return { errors, warnings: v.warnings as string[], duplicates_deduped: dup };
+  const additional = v.additional_errors;
+  if (typeof additional !== "boolean") return null;
+  return {
+    errors,
+    warnings: v.warnings as string[],
+    duplicates_deduped: dup,
+    additional_errors: additional,
+  };
 }
 
 export function parseImportResult(json: unknown): ImportResult | null {
-  const o = unwrap(json);
+  const o = requireData(json);
   if (!o) return null;
   const dataset_id = reqString(o, "dataset_id");
   const run_id = reqString(o, "run_id");
@@ -175,20 +208,11 @@ function parseDatasetItem(v: unknown): DatasetItem | null {
 }
 
 export function parseDatasetList(json: unknown): DatasetItem[] | null {
-  const o = unwrap(json);
-  const arr = Array.isArray(json)
-    ? json
-    : isRecord(json) && Array.isArray(json.data)
-      ? (json.data as unknown[])
-      : o && Array.isArray(o.items)
-        ? o.items
-        : o && Array.isArray(o.datasets)
-          ? o.datasets
-          : null;
-  const list = arr;
-  if (!Array.isArray(list)) return null;
+  // P006 returns the array under { data } with no pagination. Bare arrays
+  // and alternate keys are rejected so backend drift is loud.
+  if (!isRecord(json) || !Array.isArray(json.data)) return null;
   const out: DatasetItem[] = [];
-  for (const v of list) {
+  for (const v of json.data) {
     const item = parseDatasetItem(v);
     if (!item) return null;
     out.push(item);
@@ -196,8 +220,29 @@ export function parseDatasetList(json: unknown): DatasetItem[] | null {
   return out;
 }
 
+function parseCoverage(v: unknown): DatasetSummary["coverage"] {
+  if (!isRecord(v)) return null;
+  const start_utc = reqString(v, "start_utc");
+  const end_utc = reqString(v, "end_utc");
+  const device_intervals = v.device_intervals;
+  const room_intervals = v.room_intervals;
+  if (
+    !start_utc ||
+    !end_utc ||
+    typeof device_intervals !== "number" ||
+    !Number.isInteger(device_intervals) ||
+    device_intervals < 0 ||
+    typeof room_intervals !== "number" ||
+    !Number.isInteger(room_intervals) ||
+    room_intervals < 0
+  ) {
+    return null;
+  }
+  return { start_utc, end_utc, device_intervals, room_intervals };
+}
+
 export function parseSummary(json: unknown): DatasetSummary | null {
-  const o = unwrap(json);
+  const o = requireData(json);
   if (!o) return null;
   const dataset_id = reqString(o, "dataset_id");
   const energy_kwh = reqFinite(o, "energy_kwh");
@@ -209,7 +254,8 @@ export function parseSummary(json: unknown): DatasetSummary | null {
     energy_kwh,
     cost_inr: optFinite(o, "cost_inr"),
     tariff_inr_per_kwh: optFinite(o, "tariff_inr_per_kwh"),
-    gaps: Array.isArray(gaps) ? gaps : [],
+    coverage: parseCoverage(o.coverage),
+    gaps: Array.isArray(gaps) ? gaps : null,
     synthetic: syntheticRaw === true ? true : null,
   };
 }
@@ -255,10 +301,43 @@ export function createRequestTracker(): {
 }
 
 /**
- * Post-upload auto-select guard (monotonic revision, no wall clock).
- * The screen bumps the revision on every deliberate selection change
- * (manual select or applied auto-select). An upload captures the revision at
- * submit; its completion auto-selects only when nothing newer happened.
+ * Render a structured gap value meaningfully — never "[object Object]".
+ * Objects surface their known identifying fields; anything else falls back
+ * to JSON text.
+ */
+export function describeGap(gap: unknown): string {
+  if (typeof gap === "string") return gap;
+  if (typeof gap === "number" || typeof gap === "boolean") return String(gap);
+  if (gap !== null && typeof gap === "object" && !Array.isArray(gap)) {
+    const o = gap as Record<string, unknown>;
+    const parts: string[] = [];
+    for (const key of [
+      "room_id",
+      "device_id",
+      "start_utc",
+      "end_utc",
+      "interval_start_utc",
+      "interval_end_utc",
+      "kind",
+      "reason",
+      "message",
+    ]) {
+      if (o[key] !== undefined) parts.push(`${key}: ${String(o[key])}`);
+    }
+    if (parts.length > 0) return parts.join(", ");
+  }
+  try {
+    return JSON.stringify(gap) ?? "unrepresentable value";
+  } catch {
+    return "unrepresentable value";
+  }
+}
+
+/**
+ * Post-upload auto-select guard (monotonic revision, no wall clock). The
+ * screen bumps the revision on every deliberate selection change (manual
+ * select or applied auto-select). An upload captures the revision at submit;
+ * its completion auto-selects only when nothing newer happened.
  * Same-millisecond actions and wall-clock jumps cannot misorder this.
  */
 export function createSelectionRevision(): {
@@ -306,7 +385,13 @@ export interface ReportSnapshot {
   energyKwh: number;
   costInr: number | null;
   tariffInrPerKwh: number | null;
-  gaps: unknown[];
+  coverage: {
+    start_utc: string;
+    end_utc: string;
+    device_intervals: number;
+    room_intervals: number;
+  } | null;
+  gaps: unknown[] | null;
   synthetic: boolean | null;
   fetchedAtIso: string;
   generatedAtIso: string;
@@ -328,6 +413,8 @@ export function printEligibility(args: {
   summary: DatasetSummary | null;
   loading: boolean;
   saving: boolean;
+  /** A scoped, unresolved summary-load failure — retained data is stale. */
+  hasError: boolean;
 }): ReportEligibility {
   if (!args.selectedId) {
     return { eligible: false, reason: "Select a dataset before printing." };
@@ -350,6 +437,13 @@ export function printEligibility(args: {
       reason: "A tariff change is saving — print after it confirms.",
     };
   }
+  if (args.hasError) {
+    return {
+      eligible: false,
+      reason:
+        "The last summary refresh failed — reload successfully before printing.",
+    };
+  }
   return { eligible: true, reason: null };
 }
 
@@ -359,6 +453,7 @@ export function buildReportSnapshot(args: {
   dataset?: { run_id?: string; scenario_id?: string; interval_seconds?: number; imported_utc?: string } | null;
   loading: boolean;
   saving: boolean;
+  hasError: boolean;
   fetchedAtIso: string;
   generatedAtIso: string;
 }): ReportSnapshot | null {
@@ -367,9 +462,13 @@ export function buildReportSnapshot(args: {
     summary: args.summary,
     loading: args.loading,
     saving: args.saving,
+    hasError: args.hasError,
   });
   if (!check.eligible) return null;
   if (args.summary.dataset_id !== args.selectedId) return null;
+  const coverage = args.summary.coverage
+    ? { ...args.summary.coverage }
+    : null;
   return {
     datasetId: args.summary.dataset_id,
     runId: args.dataset?.run_id ?? null,
@@ -379,7 +478,8 @@ export function buildReportSnapshot(args: {
     energyKwh: args.summary.energy_kwh,
     costInr: args.summary.cost_inr,
     tariffInrPerKwh: args.summary.tariff_inr_per_kwh,
-    gaps: [...args.summary.gaps],
+    coverage,
+    gaps: args.summary.gaps ? [...args.summary.gaps] : null,
     synthetic: args.summary.synthetic,
     fetchedAtIso: args.fetchedAtIso,
     generatedAtIso: args.generatedAtIso,
@@ -388,14 +488,18 @@ export function buildReportSnapshot(args: {
 
 async function readJsonError(
   res: { status: number; json: () => Promise<unknown> },
-): Promise<{ code?: string; message?: string }> {
+): Promise<{ code?: string; message?: string; field?: string; row?: number; details?: unknown }> {
   try {
     const body = await res.json();
     if (isRecord(body)) {
       const err = isRecord(body.error) ? body.error : body;
+      const row = err.row;
       return {
         code: typeof err.code === "string" ? err.code : undefined,
         message: typeof err.message === "string" ? err.message : undefined,
+        field: typeof err.field === "string" ? err.field : undefined,
+        row: typeof row === "number" && Number.isInteger(row) ? row : undefined,
+        details: err.details !== undefined ? err.details : undefined,
       };
     }
   } catch {
@@ -407,7 +511,7 @@ async function readJsonError(
 function httpError(
   status: number,
   fallback: string,
-  detail: { code?: string; message?: string },
+  detail: { code?: string; message?: string; field?: string; row?: number; details?: unknown },
 ): ApiError {
   if (status === 413) {
     return new ApiError(
@@ -415,6 +519,7 @@ function httpError(
         "File too large for the server to accept (HTTP 413). Try a smaller time range.",
       status,
       detail.code ?? "REQUEST_TOO_LARGE",
+      detail.details,
     );
   }
   if (status === 409) {
@@ -423,6 +528,7 @@ function httpError(
         "The server reported a conflict (HTTP 409) — possibly an already-imported dataset.",
       status,
       detail.code ?? "CONFLICT",
+      detail.details,
     );
   }
   if (status === 404) {
@@ -430,12 +536,25 @@ function httpError(
       detail.message ?? "Not found (HTTP 404).",
       status,
       detail.code ?? "NOT_FOUND",
+      detail.details,
     );
+  }
+  if (status === 422 || status === 400) {
+    const err = new ApiError(
+      detail.message ?? `${fallback} (HTTP ${status}).`,
+      status,
+      detail.code ?? "VALIDATION_ERROR",
+      detail.details,
+    );
+    if (detail.field !== undefined) err.field = detail.field;
+    if (detail.row !== undefined) err.row = detail.row;
+    return err;
   }
   return new ApiError(
     detail.message ?? `${fallback} (HTTP ${status}).`,
     status,
     detail.code ?? null,
+    detail.details,
   );
 }
 
@@ -510,6 +629,26 @@ export async function uploadDataset(
         "TIMEOUT_UNKNOWN",
       );
     }
+    if (
+      err instanceof ApiError &&
+      (err.status === 400 || err.status === 422) &&
+      err.details !== undefined
+    ) {
+      // P006 validation failures carry the full issue list in details.
+      const report = parseReport(err.details);
+      if (report) {
+        const first = report.errors[0]?.message ?? "validation failed";
+        const rejection = new ApiError(
+          `Import rejected: ${first}`,
+          err.status,
+          "VALIDATION_REJECTED",
+        );
+        rejection.report = report;
+        if (err.field !== undefined) rejection.field = err.field;
+        if (err.row !== undefined) rejection.row = err.row;
+        throw rejection;
+      }
+    }
     throw err;
   }
   const parsed = parseImportResult(json);
@@ -527,8 +666,8 @@ export async function uploadDataset(
       null,
       "VALIDATION_REJECTED",
     );
-    (err as ApiError & { report?: ImportReport }).report = parsed.report;
-    (err as ApiError & { datasetId?: string }).datasetId = parsed.dataset_id;
+    err.report = parsed.report;
+    err.datasetId = parsed.dataset_id;
     throw err;
   }
   return parsed;
@@ -611,7 +750,7 @@ export async function updateTariff(
         "BAD_RESPONSE",
       );
     }
-    const o = unwrap(json);
+    const o = requireData(json);
     if (!o) {
       throw new ApiError(
         "Tariff update answered 2xx but the body was malformed.",
