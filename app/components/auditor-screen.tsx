@@ -11,6 +11,7 @@ import ConnectionPanel from "./connection-panel";
 import DatasetsPanel from "./datasets-panel";
 import SummaryPanel from "./summary-panel";
 import FindingsPanel from "./findings-panel";
+import ForecastDashboard from "./forecast-dashboard";
 import UploadPanel from "./upload-panel";
 import { createSelectionRevision, type DatasetItem } from "../lib/auditor-api";
 
@@ -74,6 +75,12 @@ export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
         <FindingsPanel
           backendUrl={backendUrl}
           datasetId={selectedId}
+          tariffToken={tariffToken}
+        />
+        <ForecastDashboard
+          backendUrl={backendUrl}
+          datasetId={selectedId}
+          dataset={datasets.find((d) => d.dataset_id === selectedId) ?? null}
           tariffToken={tariffToken}
         />
       </div>

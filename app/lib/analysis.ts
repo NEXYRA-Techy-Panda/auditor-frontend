@@ -75,6 +75,8 @@ export interface JobResult {
   warnings: JobWarning[];
   excluded_devices: ExcludedDevice[];
   totals: AnalysisTotals;
+  findings?: Finding[];
+  findings_pagination?: { page: number; page_size: number; total: number };
 }
 
 export interface AnalysisJob {
@@ -315,6 +317,38 @@ function parseJobResult(v: unknown): JobResult | null {
     if (!isRecord(v.coverage)) return null;
     result.coverage = v.coverage;
   }
+  // P015's committed public route carries the current page inside `result`,
+  // alongside the backend-computed totals (not as top-level job fields).
+  if (v.findings !== undefined) {
+    if (!Array.isArray(v.findings)) return null;
+    const findings: Finding[] = [];
+    for (const value of v.findings) {
+      const finding = parseFinding(value);
+      if (!finding) return null;
+      findings.push(finding);
+    }
+    result.findings = findings;
+  }
+  if (v.findings_pagination !== undefined) {
+    if (!isRecord(v.findings_pagination)) return null;
+    const page = v.findings_pagination.page;
+    const page_size = v.findings_pagination.page_size;
+    const total = v.findings_pagination.total;
+    if (
+      typeof page !== "number" ||
+      !Number.isInteger(page) ||
+      page < 1 ||
+      typeof page_size !== "number" ||
+      !Number.isInteger(page_size) ||
+      page_size < 1 ||
+      typeof total !== "number" ||
+      !Number.isInteger(total) ||
+      total < 0
+    ) {
+      return null;
+    }
+    result.findings_pagination = { page, page_size, total };
+  }
   return result;
 }
 
@@ -380,30 +414,10 @@ export function parseAnalysisJob(json: unknown): AnalysisJob | null {
     const result = parseJobResult(o.result);
     if (!result) return null;
     job.result = result;
-  }
-  if (o.findings !== undefined) {
-    if (!Array.isArray(o.findings)) return null;
-    const findings: Finding[] = [];
-    for (const f of o.findings) {
-      const finding = parseFinding(f);
-      if (!finding) return null;
-      findings.push(finding);
+    if (result.findings !== undefined) job.findings = result.findings;
+    if (result.findings_pagination !== undefined) {
+      job.findings_pagination = result.findings_pagination;
     }
-    job.findings = findings;
-  }
-  if (o.findings_pagination !== undefined) {
-    if (!isRecord(o.findings_pagination)) return null;
-    const page = o.findings_pagination.page;
-    const page_size = o.findings_pagination.page_size;
-    const total = o.findings_pagination.total;
-    if (
-      typeof page !== "number" ||
-      typeof page_size !== "number" ||
-      typeof total !== "number"
-    ) {
-      return null;
-    }
-    job.findings_pagination = { page, page_size, total };
   }
   return job;
 }

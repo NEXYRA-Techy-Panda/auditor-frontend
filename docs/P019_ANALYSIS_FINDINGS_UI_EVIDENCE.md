@@ -96,3 +96,14 @@ P019 evidence report.
   remains a small future addition — recorded, not implemented).
 - Gaps: still always `[]` per P015 docs → "None reported" stands; absent
   still means "Not supplied". No complete-coverage claim made.
+
+## P025 real-integration addendum (2026-09-25)
+
+P025's isolated pinned P020 + P010 run completed the previously pending real
+analysis check and exposed one frontend mapping defect: committed P015 returns
+`findings` and `findings_pagination` inside `result`, while the original P019
+fixture placed them at job top level. P025 corrected the adapter and fixture to
+the committed nested shape. The final real reference run returned one
+`light-a` 0.01 kWh finding costing ₹0.10 at ₹10/kWh and excluded `fridge-b`.
+Browser interaction remains unverified. See
+[P025 evidence](P025_FORECAST_DASHBOARD_EVIDENCE.md).

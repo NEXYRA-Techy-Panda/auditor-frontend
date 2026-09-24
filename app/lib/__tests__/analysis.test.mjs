@@ -68,9 +68,9 @@ const JOB_COMPLETED = {
         dataset_cost_inr: 0.3,
         avoidable_cost_inr: 0.1,
       },
+      findings: [LIGHT_FINDING],
+      findings_pagination: { page: 1, page_size: 100, total: 1 },
     },
-    findings: [LIGHT_FINDING],
-    findings_pagination: { page: 1, page_size: 100, total: 1 },
     created_at: "2026-09-24T00:00:00Z",
     completed_at: "2026-09-24T00:01:00Z",
   },
@@ -205,9 +205,9 @@ describe("findings presentation", () => {
             dataset_cost_inr: null,
             avoidable_cost_inr: null,
           },
+          findings: [],
+          findings_pagination: { page: 1, page_size: 100, total: 0 },
         },
-        findings: [],
-        findings_pagination: { page: 1, page_size: 100, total: 0 },
       },
     });
     assert.ok(job && job.findings.length === 0);
@@ -221,7 +221,28 @@ describe("findings presentation", () => {
       null,
     );
     const bad = parseAnalysisJob({
-      data: { job_id: "j", dataset_id: "d", status: "completed", findings: [LIGHT_FINDING], findings_pagination: { page: 1 } },
+      data: {
+        job_id: "j",
+        dataset_id: "d",
+        status: "completed",
+        result: {
+          dataset_id: "d",
+          method: "rule",
+          method_version: "v",
+          warnings: [],
+          excluded_devices: [],
+          totals: {
+            dataset_energy_kwh: 1,
+            avoidable_energy_kwh: 0,
+            unknown_avoidable_findings: 0,
+            tariff_inr_per_kwh: null,
+            dataset_cost_inr: null,
+            avoidable_cost_inr: null,
+          },
+          findings: [LIGHT_FINDING],
+          findings_pagination: { page: 1 },
+        },
+      },
     });
     assert.equal(bad, null);
   });

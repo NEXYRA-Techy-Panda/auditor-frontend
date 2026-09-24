@@ -395,3 +395,49 @@ correction entry; do not rewrite history.
 - 52/52 tests; 75/75 contract; typecheck/lint(0 errors)/build green; HTTP-200 markup; live submit-to-failed wiring 6/6 on isolated temp backend (scratch DB, stopped); completed findings mock-verified (no Python); browser interaction unverified. Sibling repos untouched. Review pending; no approval claimed.
 - Next action: commit, push main, verify remote hash; return P019 evidence. Stop after P019.
 - Commit references: P017 pushed; P019 recorded after push.
+
+---
+
+## 2026-09-24 23:15:00 +05:30 (IST) - P025 A6 started (actual, Agent A - OpenCode)
+
+- P019 completed and accepted based on supplied implementation evidence; pushed commit `855879caa33b1751430439bca5d393e99afb5f2e` (remote verified). Browser interaction and the real-Python completed analysis run remain pending.
+- Exclusive writer: `auditor-frontend` only. Codex owns auditor-backend/P023 and Claude Code owns energy-ml-service/P024; committed reads only, no sibling/contract/parent writes or process interference.
+- Startup: no frontend `AGENTS.md`; continuity + P017/P019 evidence + checklist + current import/tariff/findings implementation read; `main` clean and equal to remote at expected baseline `855879c`.
+- Pinned interfaces inspected from committed objects: auditor-backend P020 `df1ecbd08369d71f88de9cf5f26e6d8fd44e8ebd`; energy-ml-service P013 `7f71363aa9361e67a0cb2815b98aee79b0708cf9`. Confirmed public forecast submit/poll/completed/failure shapes, origin/history eligibility, full-month semantics, null-vs-zero tariff cost, and statistical-baseline limitations.
+- Progress: Mohan prompt 25 / approximately 34 planned. Estimated remaining after this prompt: 9. This is a planning estimate, not a completion percentage and says nothing about other assignments.
+- Next action: implement typed forecast adapter + focused tests + accessible SVG/table dashboard and robust job/horizon/tariff guards; then verify and attempt isolated real P020/P013 + analysis checks.
+- Review status: pending. P025 commit: none yet.
+
+---
+
+## 2026-09-24 23:35:00 +05:30 (IST) - P025 adapter + dashboard implemented (actual, Agent A - OpenCode)
+
+- Added strict committed-P020 adapter and pure presentation/scope helpers; POST sends only `{dataset_id,horizon}` (no invented current-date origin), GET enforces exact forecast/dataset/horizon identity and validates the complete hourly grid/backend total.
+- Added 13 focused tests: exact request/ack, state/error mapping, all three horizons/returned month dates, null-vs-zero cost, no savings aggregate, mismatch/stale guards, synchronous duplicate gate, failed-job fallback, GET-only repricing, flat/zero and missing-point chart gaps.
+- Added/wired accessible forecast dashboard: explicit horizon/action, submit/queued/running/completed/failed states, no auto-retry, single-flight polling/terminal+unmount stop, late-scope rejection, prior-completed preservation, tariff refetch without rerun, actual origin/range/timezone, total/cost/tariff/baseline/coverage/warnings/assumptions/limitations, responsive SVG and all-returned-hour table. Forecast remains outside the P014 print snapshot.
+- First checks: `npm test` 65/65, typecheck clean, lint 0 errors (one pre-existing verifier warning).
+- Next: contract/build + code audit, isolated pinned P020/P013 real forecast and real analysis adapter checks, then docs/commit/push.
+- Review status: pending. P025 commit: none yet.
+
+---
+
+## 2026-09-25 00:01:00 +05:30 (IST) - P025 isolated real integration passed (actual, Agent A - OpenCode)
+
+- Exported committed auditor-backend `df1ecbd` and P013 `7f71363` to task-owned temp directories; temp-only npm install/build; existing compatible Python interpreter used read-only with `-B`; scratch DB and unused loopback ports 4571/8571.
+- Frontend-adapter A–E checks passed: CORS preflight exact origin; 672-hour synthetic import; real next-calendar-month forecast 720 points over the full local November boundary; total 10.799999999999999 kWh; unset then ₹10 then ₹0 same-job cost refresh; exact `INSUFFICIENT_DATA` for the tiny fixture; real reference P010 analysis one light finding 0.01 kWh / ₹0.10 with refrigerator excluded.
+- First real-analysis attempt exposed and then fixed a P019 frontend defect: committed P015 nests `findings` and `findings_pagination` inside `result`; original tests used an incorrect top-level fixture. Updated committed mapping/tests; final A–E run passed.
+- HTTP frontend `GET /` returned 200 with preserved import/findings/summary and new forecast markup. Built-in browser cannot reach localhost started by this coding session, so interaction/narrow-screen/keyboard/print remain explicitly unverified.
+- All owned ports 3001/4571/8571 have no listener; task temp export, scratch DB and harness removed.
+- Next: final full checks, complete continuity/evidence, inspect staged files, commit/push and verify remote hash.
+- Review status: pending. P025 commit: none yet.
+
+---
+
+## 2026-09-25 00:10:00 +05:30 (IST) - P025 A6 completed, ready to commit (actual, Agent A - OpenCode)
+
+- Forecast dashboard delivered with real P020 submit/poll/terminal/recovery/tariff-refresh, accessible full-hour SVG + table, complete returned metadata, and explicit forecast-vs-observation-vs-avoidable boundaries.
+- Isolated real A–E checks passed, including same-job ₹10→₹0 repricing and successful P010 analysis; P019 nested findings/pagination mapping corrected from the real response.
+- Final: 65/65 tests; typecheck clean; lint 0 errors (one pre-existing verifier warning); contract 75/75; production build exit 0; HTTP-200 served markup. Browser interaction remains unverified for the documented localhost capability boundary.
+- Evidence and continuity complete. All task-owned processes/temp data removed; sibling repos untouched. Review pending; no approval claimed.
+- Next action: inspect staged files, commit, push `main`, verify remote hash, return P025 evidence. Stop after P025.
+- Commit references: P019 pushed; P025 none yet.

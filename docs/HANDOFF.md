@@ -2,9 +2,21 @@
 
 ## 0. Continuity and current layer (F0.1, 2026-09-24)
 
-- Current layer: **P019 A4** (analysis findings, Agent A —
+- Current layer: **P025 A6** (forecast dashboard, Agent A —
   OpenCode) — status **completed**, review **pending**. Contract: **1.0.1
   authoritative, read-only**.
+- P025 A6 addendum (completed, review pending): forecast dashboard wired to
+  committed P020 (`df1ecbd`) with all three horizons, scoped submit/poll/
+  terminal/recovery/tariff-refresh, accessible full-hour SVG + table, actual
+  origin/range/coverage/warnings/assumptions, and null-vs-zero cost semantics.
+  A real isolated P020 + P013 run passed A–E, including 720-point month,
+  same-job ₹10→₹0 repricing, exact insufficient-data, and real P010 analysis
+  (0.01 kWh / ₹0.10, refrigerator excluded). This also corrected P019's
+  committed nested findings/pagination mapping. Verified 65/65 tests, 75/75
+  contract, typecheck/lint(0 errors)/build green and HTTP-200 markup; browser
+  interaction remains unverified because the built-in browser cannot reach a
+  session-started localhost server. Details in
+  [P025 evidence](P025_FORECAST_DASHBOARD_EVIDENCE.md). History preserved.
 - P001 F4-A addendum (completed, review pending): browser-side connection
   panel (`NEXT_PUBLIC_AUDITOR_BACKEND_URL` + `/api/v1/health`, 8 s timeout,
   abort on unmount, no duplicates/polling); ml_reachable:not_checked shown as

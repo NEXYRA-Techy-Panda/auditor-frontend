@@ -97,5 +97,11 @@ SSR markup and built-CSS inspection do not prove print pagination.
 ## 8. P019 analysis findings (Agent A, 2026-09-24)
 
 - P006 follow-ups resolved without backend changes: summary synthetic provenance IS now supplied (P015-era backend returns synthetic/synthetic_label; adapter parses the flag); gaps still always [] per P015 docs, so "None reported" stands and absent still means "Not supplied".
-- Findings UI wired to committed P015 (32d88be): submit/poll/terminal/pager/tariff-refetch verified mock-side (16 committed tests) plus live submit-to-failed wiring 6/6 on an isolated temp backend (no Python, so completed-findings rendering stays mock-verified).
-- Still pending a Python service + browser: live completed-findings display, pager interaction, and print-with-findings review (findings intentionally stay out of the printable dataset summary).
+- Findings UI wired to committed P015 (32d88be): initial P019 live check reached only an honest failed job because Python was absent. P025's isolated real-Python run exposed that committed findings/pagination are nested in `result`; the frontend adapter/tests were corrected. Final real reference analysis passed: one 0.01 kWh light finding, ₹0.10 at ₹10/kWh, refrigerator excluded.
+- Still browser-pending: completed-findings interaction, pager clicks, and print-with-findings boundary review (findings intentionally stay out of the printable dataset summary).
+
+## 9. P025 forecast dashboard (Agent A, 2026-09-25)
+
+- Implemented actual P020 `df1ecbd` job wiring and presentation for next 24h / 7d / complete next local calendar month; forecast and analysis remain separate, and forecast cost is never called savings.
+- Isolated pinned P020 + P013 A–E checks passed: 672-hour synthetic import; 720-point November forecast; backend total 10.799999999999999 kWh; unset→₹10→₹0 same-job costing; exact insufficient-data failure; real P010 reference finding 0.01 kWh / ₹0.10 with refrigerator excluded.
+- CORS was verified by HTTP preflight only. The built-in browser cannot open this session-started localhost server, so horizon/request/poll/chart/table/tariff/narrow-screen/keyboard interactions and print boundary remain manual browser checks. Forecasts stay outside the P014 print snapshot.
