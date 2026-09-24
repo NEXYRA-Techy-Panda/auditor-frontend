@@ -12,8 +12,10 @@
   frontend; later uncommitted backend edits were not read or used. Public
   read-only health and detector catalogue checks succeeded; no public dataset
   is available for job execution. Feature implementation commit:
-  `be99d03fef2dc550da6f24ff438defcd57f91c33`; final remote verification is
-  recorded in the P027 evidence/report.
+  `be99d03fef2dc550da6f24ff438defcd57f91c33`; final continuity commit
+  `13e5f5fdc4390cdfae91f006945d346cecf3b93a` was pushed and matches
+  `origin/main`. The Vercel URL returned HTTP 200 but did not expose the new
+  client-rendered labels; deployment is not independently claimed.
 - Current layer before P027: **P025 A6** (forecast dashboard, Agent A —
   OpenCode) — status **completed**, review **pending**. Contract: **1.0.1
   authoritative, read-only**.

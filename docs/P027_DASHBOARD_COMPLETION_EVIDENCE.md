@@ -130,8 +130,12 @@ Updated source/continuity:
 
 - Feature implementation commit:
   `be99d03fef2dc550da6f24ff438defcd57f91c33`.
-- A final continuity-only commit records the push/remote verification; the
-  feature hash above is the implementation reference.
+- Final continuity commit:
+  `13e5f5fdc4390cdfae91f006945d346cecf3b93a`.
+- Both commits were pushed normally; local HEAD equals `origin/main`.
+- The public Vercel URL returned HTTP 200, but its HTML did not expose the new
+  client-rendered labels. Deployment success is therefore not independently
+  claimed; the push result is the verified publication fact.
 - Review remains pending; no approval is claimed.
 
 ## Remaining work

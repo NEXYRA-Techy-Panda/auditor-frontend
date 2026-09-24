@@ -507,3 +507,18 @@ correction entry; do not rewrite history.
 - Next action: push normally and verify local HEAD equals `origin/main`; report
   push/deployment outcome separately. Review remains pending; no approval is
   claimed.
+
+---
+
+## 2026-09-25 — P027 pushed and remote verified (Mohan, M-A — OpenCode)
+
+- Continuity commit `13e5f5fdc4390cdfae91f006945d346cecf3b93a` pushed
+  normally after feature commit `be99d03fef2dc550da6f24ff438defcd57f91c33`.
+- `git ls-remote` confirms local HEAD equals `origin/main`; the frontend
+  worktree is clean.
+- Public Vercel URL returned HTTP 200. Its initial HTML did not contain the new
+  client-rendered historical/detector labels, so no deployment-success claim is
+  made beyond the verified Git push and HTTP reachability.
+- No task-owned process or temporary database was started. Browser-witnessed
+  interactions and the later report workflow remain pending. Review remains
+  pending; no approval is claimed.

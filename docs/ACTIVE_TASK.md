@@ -107,11 +107,11 @@ no approval is claimed.
 ## Publication
 
 - Feature implementation commit: `be99d03fef2dc550da6f24ff438defcd57f91c33`.
-- A final continuity-only commit will record the remote verification; the
-  feature commit above remains the implementation reference.
+- Final continuity commit: `13e5f5fdc4390cdfae91f006945d346cecf3b93a`.
+- Both commits were pushed normally; local HEAD equals `origin/main`.
+- The public Vercel URL returned HTTP 200, but its HTML did not expose the new
+  client-rendered labels; deployment success is not independently claimed.
 - Review remains pending; no approval is claimed.
 
-Exact next action: push the completed P027 commits normally, verify local HEAD
-matches `origin/main`, then return the P027 evidence report. Browser-witnessed
-historical/detector interactions and the later full report workflow remain
-future work.
+Exact next action: return the P027 evidence report. Browser-witnessed historical/
+detector interactions and the later full report workflow remain future work.
