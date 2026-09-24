@@ -248,3 +248,21 @@ correction entry; do not rewrite history.
 - Real backend :4001 refused (5 open response questions for Codex, recorded in evidence); browser interaction/CORS unverified; no test uploads made. Simulation-frontend untouched. Review pending; no approval claimed.
 - Next action: commit, push main, verify remote hash; return P007 evidence. Stop after P007.
 - Commit references: P001 pushed; P007 recorded after push.
+---
+
+## 2026-09-24 20:41:35 +05:30 (IST) - P011 started (actual, Agent A - OpenCode)
+
+- P007 completed; review stays pending. Contract 1.0.1 read-only.
+- Committed auditor-backend inspected read-only at aa53d0c (P003 SQLite foundation): no imports routes in committed src, so P006 is uncommitted. Taking the document-and-checklist branch - no waiting, no speculative UI changes.
+- Exclusive writer: auditor-frontend only. No sibling/backend/contract/parent writes; no backend processes started or stopped.
+- Startup: AGENTS.md absent; full context + P007 evidence + API read; main clean at expected baseline 9304022, fetch clean.
+- Next action: write docs/AUDITOR_INTEGRATION_CHECKLIST.md, then evidence doc, continuity, verification, commit, push.
+- Review status: pending. P011 commit: none yet.
+---
+
+## 2026-09-24 20:55:00 +05:30 (IST) - P011 completed (actual, Agent A - OpenCode)
+
+- Backend aa53d0c confirmed P006-uncommitted; checklist branch taken, UI preserved. docs/AUDITOR_INTEGRATION_CHECKLIST.md + P011 evidence written. 18/18 tests, 75/75 contract, typecheck/lint(0 errors)/build green.
+- No mock verifies real integration; nothing uploaded; no browser checks. Sibling repos untouched. Review pending; no approval claimed.
+- Next action: commit, push main, verify remote hash; return P011 evidence. Stop after P011.
+- Commit references: P007 pushed; P011 recorded after push.

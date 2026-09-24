@@ -2,7 +2,7 @@
 
 ## 0. Continuity and current layer (F0.1, 2026-09-24)
 
-- Current layer: **P007 A1-UI** (auditor upload + datasets, Agent A —
+- Current layer: **P011 F6-frontend/auditor-alignment** (Agent A —
   OpenCode) — status **completed**, review **pending**. Contract: **1.0.1
   authoritative, read-only**.
 - P001 F4-A addendum (completed, review pending): browser-side connection
@@ -20,6 +20,12 @@
   (5 open response questions for Codex); browser interaction unverified.
   Details in [P007_A1_UI_EVIDENCE.md](P007_A1_UI_EVIDENCE.md).
   Simulation-frontend untouched. History preserved.
+- P011 addendum (completed, review pending): backend aa53d0c inspected
+  (P006 uncommitted) → checklist branch, UI preserved; created
+  [AUDITOR_INTEGRATION_CHECKLIST.md](AUDITOR_INTEGRATION_CHECKLIST.md) and
+  [P011 evidence](P011_FRONTEND_HANDOFF_ALIGNMENT_EVIDENCE.md). Verified:
+  18/18 tests, 75/75 contract, typecheck/lint(0 errors)/build green.
+  History preserved.
 - Dated correction (2026-09-24, P001): F1-R2 (contract 1.0.1) and F2-A are
   accepted based on supplied evidence; older "unaccepted"/"review pending"
   wording about the contract refers to pre-acceptance review state. Later

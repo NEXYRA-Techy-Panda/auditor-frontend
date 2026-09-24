@@ -2,7 +2,7 @@
 
 ## prompt_id
 
-P007
+P011
 
 ## agent
 
@@ -10,16 +10,19 @@ A — OpenCode
 
 ## Layer ID
 
-A1-UI
+F6-frontend / auditor integration preparation
 
 ## Objective
 
-First useful auditor screen (this repo ONLY; simulation-frontend unchanged):
-CSV/JSON upload with import status + validation feedback; dataset listing +
-selection; persisted energy summary; tariff editing. Keep compact connection
-panel. Typed API adapter (`app/lib/auditor-api.ts`), committed node:test
-checks, no fake data, no analysis/forecasts/charts/reports/comparison.
-Contract 1.0.1 authoritative, read-only.
+Align auditor-frontend assumptions against the committed auditor-backend
+interface (read-only inspection) or, if P006 is uncommitted, preserve the
+working UI and record the integration checklist. Create
+`docs/AUDITOR_INTEGRATION_CHECKLIST.md` (concrete future local verification:
+services/config, scratch DB, reference JSON/CSV upload, 0.03 kWh, reimport
+semantics, ₹10→₹0.30, zero-vs-unset tariff, no-partial-import, browser/CORS/
+selection/refresh/upload/tariff checks, mock-vs-executed status). Save
+`docs/P011_FRONTEND_HANDOFF_ALIGNMENT_EVIDENCE.md`. No speculative API
+changes. Contract 1.0.1 authoritative, read-only.
 
 ## Task status
 
@@ -32,66 +35,64 @@ pending
 ## Repository and owner
 
 - Repository: `auditor-frontend` (`https://github.com/NEXYRA-Techy-Panda/auditor-frontend.git`)
-- Agent: A — OpenCode, exclusive writer this assignment.
+- Agent: A — OpenCode.
 - Owner (foundation + long-term): Mohan.
 
 ## Current branch
 
-`main` (P001 `bf17d59` pushed; tree clean at P007 start)
+`main` (P007 `9304022` pushed; tree clean at P011 start)
 
 ## Last checkpoint timestamp, including timezone
 
-2026-09-24 20:25:00 +05:30 (IST) — P007 A1-UI completed.
+2026-09-24 20:55:00 +05:30 (IST) — P011 completed (alignment + checklist).
 
 ## Applicable contract version
 
-1.0.1 (authoritative, read-only; P001 accepted for implementation;
-browser/CORS + live backend still outstanding).
+1.0.1 (authoritative, read-only).
 
 ## Completed steps
 
-1. Startup: AGENTS.md absent; context/health-panel/API 1.0.1 read; git
-   clean/in-sync at expected baseline bf17d59; P007 recorded.
-2. Implemented `app/lib/auditor-api.ts` + upload/datasets/summary/screen
-   components, wired into page; committed `app/lib/__tests__/
-   auditor-api.test.mjs` (18/18) + `test` script.
-3. Verified: 18/18 tests; 75/75 contract; typecheck/lint(0 errors)/build
-   green; served + HTTP-200 markup; server stopped. Real backend down
-   (5 open questions for Codex); no browser capability.
+1. Startup: AGENTS.md absent; context/handoff/active-task/progress/prompt/
+   P007 evidence/API read; git clean/in-sync at expected baseline 9304022.
+2. Inspected committed auditor-backend (read-only `git show`): latest commit
+   aa53d0c (P003 SQLite foundation). No imports routes in committed src —
+   P006 is uncommitted work in progress. Taking the document-and-checklist
+   branch: no UI changes, no waiting, no polling.
+3. Wrote `docs/AUDITOR_INTEGRATION_CHECKLIST.md` +
+   `docs/P011_FRONTEND_HANDOFF_ALIGNMENT_EVIDENCE.md`; updated continuity.
+4. Verified: 18/18 tests, 75/75 contract, typecheck/lint(0 errors)/build
+   green (re-run on docs-complete tree).
 
 ## Files changed
 
-- Created: `app/lib/auditor-api.ts`, `app/lib/__tests__/auditor-api.test.mjs`,
-  `app/components/upload-panel.tsx`, `app/components/datasets-panel.tsx`,
-  `app/components/summary-panel.tsx`, `app/components/auditor-screen.tsx`,
-  `docs/P007_A1_UI_EVIDENCE.md`. Updated: `app/page.tsx`, `package.json`,
-  `README.md`, `docs/HANDOFF.md`, `docs/PROGRESS_LOG.md`, `docs/ACTIVE_TASK.md`.
+- Updated: `docs/ACTIVE_TASK.md` (this file).
 
 ## Verification performed and actual results
 
-- `main` at `bf17d59`, fetch clean, tree clean.
+- `main` at `9304022`, fetch clean, tree clean. Backend HEAD aa53d0c
+  inspected without touching its worktree.
 
 ## Incomplete edits and uncommitted changes
 
-- UI implemented and verified; sibling repos untouched. Committing and
-  pushing now.
+- Checklist + evidence written and verified; sibling repos, backends,
+  contracts untouched. Committing and pushing now.
 
 ## Blockers or unknowns
 
-- None. auditor-backend upload endpoints are Codex's (P006) — build against
-  the contract; record open response questions; do not wait.
+- None. Not blocked on Codex: this branch finishes independently.
 
 ## Exact next action
 
-Commit, push `main`, verify remote hash; then return P007 evidence.
-Stop after P007.
+Commit, push `main`, verify remote hash; then return P011 evidence.
+Stop after P011.
 
 ## Related-repository dependencies
 
-Paired backend `../auditor-backend` (4001, Codex P006); read-only
-health/list calls only if already running; no test uploads to a live DB.
+auditor-backend `../auditor-backend` (Codex P006, uncommitted): inspect
+committed files only; no staging/starts/installs/edits. No test uploads to
+any live DB.
 
 ## Commit reference
 
-P001: `bf17d599b3753a9e943e4c1364fc37b87ad0635f` (pushed, verified).
-P007: none yet.
+P007: `9304022c8264d36b1b6729c45eebe15d5716402c` (pushed, verified).
+P011: none yet.
