@@ -1,7 +1,7 @@
 import AuditorScreen from "./components/auditor-screen";
+import { AUDITOR_BACKEND_URL } from "./lib/deployment-config";
 
-const backendUrl =
-  process.env.NEXT_PUBLIC_AUDITOR_BACKEND_URL ?? "(not configured)";
+const backendUrl = AUDITOR_BACKEND_URL;
 
 export default function Home() {
   return (

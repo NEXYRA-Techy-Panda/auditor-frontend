@@ -56,7 +56,7 @@ export default function ConnectionPanel({
         outcome: "unexpected",
         data: null,
         error:
-          "Backend URL is missing or invalid. Set NEXT_PUBLIC_AUDITOR_BACKEND_URL to an http(s) origin.",
+          "Backend API URL is missing or invalid. Verify the deployment configuration.",
         checkedAtIso: new Date().toISOString(),
       });
       setState("unexpected");
