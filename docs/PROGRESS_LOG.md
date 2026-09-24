@@ -443,3 +443,52 @@ correction entry; do not rewrite history.
 - P025 feature commit `3beb07b8d97930ffabc040a797b1d0f3f963e453` pushed normally; remote main hash matched local HEAD.
 - Next action: return P025 evidence. Stop after P025.
 - Commit references: P019 and P025 pushed.
+
+---
+
+## 2026-09-25 — P027 started / checkpoint 1 (Mohan, M-A — OpenCode)
+
+- Exclusive scope: `auditor-frontend`; sibling `auditor-backend` remains
+  read-only and visibly has uncommitted M-D/P026 work, which was not read or
+  used.
+- Backend interface pinned to committed `f3b8e2c8dac923957d91e1a55591abc7e03fe67c`
+  (P023 feature `d683578106e718a4e1a42f9a29ce796bcb2d2857`).
+- Added strict historical P023 adapter, dashboard tabs, scoped office/room/device
+  drill-down, weekday means, coverage/provenance, page/full-period semantics,
+  half-open window controls, and P023 gap-assessment wording.
+- Added nullable summary/provenance handling without changing the fixed print
+  boundary; historical data is not added to the printable report.
+- Added seven P023-shaped historical tests and updated summary tests.
+- Checks at checkpoint: 73 tests passed, typecheck passed, lint had only the
+  pre-existing verifier warning, build passed, contract verification 75/75.
+- Read-only deployed check: auditor health is `ok` with `ml_reachable:true`,
+  but the public import list is empty. No upload, tariff change, job, or
+  simulation/database mutation was performed. Local port 19002 was already
+  occupied by an existing VS Code process, so no pinned backend service was
+  started.
+- Next action: complete P027 documentation/checklist, review the task-owned
+  diff, run final verification, then commit and push normally. Review remains
+  pending; no approval is claimed.
+
+---
+
+## 2026-09-25 — P027 checkpoint 2: committed P026 integrated (Mohan, M-A — OpenCode)
+
+- The post-P023 backend check found P026 committed at
+  `d0fcd092fa39ca17a7efbcdaeffd4e43bd1c2eb1`. Only the immutable commit was
+  inspected; later uncommitted M-D worktree files were not read or used.
+- Added catalogue-backed P026 controls and a dedicated detector panel while
+  preserving the existing vacancy FindingsPanel as the default. The panel
+  submits exact reference/evaluation windows, polls persisted jobs, paginates
+  findings, and scopes stale responses by dataset/detector/window/job.
+- Added coverage, per-device assessment source/reason, aggregation exclusions,
+  warnings/limitations, insufficient/unsupported states, and gradual-trend
+  `other_changes` as descriptive observations. Detector results are not priced
+  and are never added to vacancy totals.
+- Added seven P026 adapter tests. Final suite is 81 passing; typecheck, build,
+  and contract verification pass; lint has only the pre-existing verifier
+  warning.
+- Read-only deployed `GET /api/v1/detectors` returned the committed catalogue;
+  public imports remain empty, so no job or production mutation was made.
+- Next action: final diff review, commit/push, remote verification. Review
+  remains pending; no approval is claimed.

@@ -1,135 +1,109 @@
 # ACTIVE_TASK — auditor-frontend
 
-## prompt_id
+## Assignment
 
-P025
-
-## agent
-
-A — OpenCode
-
-## Layer ID
-
-A6
+- Prompt: P027
+- Developer: Mohan
+- Agent: M-A — OpenCode
+- Layer: Dashboard completion / historical analytics
+- Owner: Mohan
+- Exclusive write scope: `auditor-frontend` only
+- Status: implementation_complete
+- Review: pending
 
 ## Objective
 
-Connect the selected-dataset auditor UI to the committed P020 public
-forecast-job API at backend `df1ecbd08369d71f88de9cf5f26e6d8fd44e8ebd`
-(Python P013 `7f71363aa9361e67a0cb2815b98aee79b0708cf9`): accessible
-24-hour / 7-day / next-calendar-month request flow, queued/running/terminal
-states, all returned hourly values in an accessible SVG + table, backend
-coverage/warnings/assumptions, and tariff re-fetch without rerun. Preserve the
-P017 import flow, P019 findings, and P014 printable dataset summary; forecasts
-remain outside the printable report.
+Finish the auditor dashboard with committed P023 historical analytics:
+office timeseries, room/device breakdowns and drill-down, weekday comparison,
+coverage and synthetic provenance. Preserve imports, tariff editing, vacancy
+findings, forecasts, and the P014 printable dataset summary. P026 detector
+integration is now included because its committed interface appeared during
+this task.
 
-## Task status
+## Starting state
 
-completed
+- Frontend branch: `main`, clean.
+- Frontend HEAD: `6f7a94b523f5b27a56cebcb3bedfe645798cee60`.
+- Committed auditor-backend historical reference: `f3b8e2c8dac923957d91e1a55591abc7e03fe67c`.
+- P023 feature reference: `d683578106e718a4e1a42f9a29ce796bcb2d2857`.
+- P026 committed interface used: `d0fcd092fa39ca17a7efbcdaeffd4e43bd1c2eb1`.
+- Later P026 worktree edits remain under M-D ownership; they were not read,
+  edited, installed, started, or committed.
+- No `AGENTS.md` exists in the parent or frontend repository.
+- Contract: 1.0.1, read-only; public base remains
+  `https://git-pipeline.metatronhost.in/auditor`.
 
-## Review status
+## Preserved prior outcome
 
-pending
+P025 is complete and published: the forecast adapter/dashboard, P020 job
+polling, accessible chart/table, null-versus-zero tariff semantics, and the
+P019 nested-findings correction are preserved. P025 review remains pending;
+no approval is claimed.
 
-## Repository and owner
+### Prior P025 record retained for continuity
 
-- Repository: `auditor-frontend` (`https://github.com/NEXYRA-Techy-Panda/auditor-frontend.git`)
-- Agent: A — OpenCode, exclusive writer this assignment.
-- Owner: Mohan.
+- Baseline was clean/remote-matched at P019 `855879c`; P025 used committed P020
+  `df1ecbd` and Python P013 `7f71363` only.
+- Implemented all forecast horizons, strict lifecycle/origin parsing, polling,
+  recovery, tariff GET repricing without rerun, coverage/warnings/assumptions,
+  accessible SVG plus all-hour table, and 65 passing tests at that layer.
+- Isolated A–E checks covered a 672-hour import, 720-point month, ₹10→₹0
+  same-job costing, insufficient data, CORS, and real P010 output (0.01 kWh /
+  ₹0.10; refrigerator excluded). P019’s nested `result.findings` correction is
+  preserved. Browser interaction remained unverified due the session browser
+  limitation. P025 commit was `3beb07b8d97930ffabc040a797b1d0f3f963e453`.
 
-## Current branch
+## Required implementation
 
-`main` (P019 `855879caa33b1751430439bca5d393e99afb5f2e` was the clean,
-remote-matched P025 baseline).
+1. Add a strict P023 adapter using actual committed response shapes.
+2. Add historical dashboard sections/tabs for overview, rooms/devices, and
+   weekday patterns without redesigning existing panels.
+3. Preserve half-open windows, explicit Asia/Kolkata timezone, page/full-period
+   totals, null/missing/partial states, gap-assessment wording, and explicit
+   synthetic provenance.
+4. Add focused fixtures/tests for the P023 reference values and stale guards.
+5. Update continuity/evidence/checklist files only within this repository.
+6. Do not query or mutate production, touch databases, change deployment
+   settings, or access Python directly.
 
-## Last checkpoint timestamp, including timezone
+## Checkpoint 1 — adapter, dashboard, and fixtures
 
-2026-09-25 00:10:00 +05:30 (IST) — P025 implementation, isolated real
-integration, evidence and final verification complete; ready to commit/push.
+- Strict P023 adapter added at `app/lib/historical.ts` using the committed
+  `f3b8e2c` route shapes and canonical `from`/`to` query names.
+- Historical dashboard added at `app/components/historical-analytics.tsx` with
+  Overview, Rooms & devices, and Weekday patterns tabs.
+- Summary/print handling now preserves nullable energy, explicit provenance,
+  and `gap_assessment.status=not_performed` without calling an empty gaps array
+  “no gaps”.
+- Added `.gitattributes` LF rules for the mirrored contract paths.
+- Added seven historical adapter tests using P023-shaped fixtures, including
+  page/full totals, partial/missing buckets, reference energy, weekday means,
+  quantity separation, and `UNSUPPORTED_INPUT`.
+- Existing frontend checks currently pass: 73 tests, typecheck clean, lint has
+  only the pre-existing verifier warning, build and contract verification pass.
+- Public read-only check found the deployed auditor healthy but with zero
+  imported datasets; no production mutation was attempted. Local port 19002
+  is occupied by an existing VS Code process, so no pinned backend service was
+  started.
 
-## Applicable contract version
+## Checkpoint 2 — P026 interface discovered and integrated
 
-1.0.1 (read-only; no contract/sibling changes).
+- A post-P023 backend check found committed P026 at `d0fcd09`; the committed
+  catalogue, submit/poll/pagination, window, coverage, exclusion and detector
+  result shapes were read without opening later M-D worktree edits.
+- Added `app/lib/detectors.ts`, `app/components/detector-panel.tsx` and seven
+  P026 fixture tests. The existing vacancy FindingsPanel remains the default
+  and is not replaced.
+- Added catalogue-backed excess-consumption/gradual-trend controls, strict
+  reference/evaluation windows, persisted job polling, scoped stale guards,
+  coverage/exclusion/device assessment display, drift `other_changes`, and
+  explicit insufficient/unsupported states. Detector output is unpriced and
+  separate from vacancy totals.
+- Read-only deployed `GET /api/v1/detectors` returned both supported IDs;
+  public imports remain empty, so no detector job was submitted.
+- Current checks: 81 tests passed, typecheck passed, lint has only the
+  pre-existing verifier warning, build and contract verification pass.
 
-## Completed steps
-
-1. Startup: no `auditor-frontend/AGENTS.md`; continuity, P017/P019 evidence,
-   checklist, current import/summary/findings source and tests read; `main`
-   clean/in-sync at expected baseline `855879c`.
-2. Read committed P020 `df1ecbd` API examples/route/runner/job tests/evidence
-   and P013 `7f71363` baseline evidence/service. No sibling working-tree reads
-   or writes.
-3. Implemented strict P020 adapter, all-horizon labels, null-vs-zero costing,
-   scope/single-flight/recovery helpers, gap-safe chart preparation, and 13
-   focused tests.
-4. Implemented/wired the accessible forecast dashboard: exact job
-   polling/states, stale guards, prior-completion preservation, tariff GET
-   refresh, complete backend coverage/warnings/assumptions, responsive SVG,
-   and all-hour table. P017 import, P019 findings, and P014 print boundary are
-   preserved.
-5. Isolated pinned P020 + P013 A–E checks passed through the actual frontend
-   adapters: 672-hour import, 720-point full-month forecast, exact origin and
-   total, unset/₹10/₹0 same-job costing, real insufficient-data, CORS
-   preflight, and real P010 reference analysis (0.01 kWh / ₹0.10; refrigerator
-   excluded).
-6. The real analysis check exposed P019's incorrect top-level findings fixture:
-   committed P015 nests findings/pagination in `result`. Corrected the adapter
-   and tests; final A–E run passed.
-7. Final verification: 65/65 tests, typecheck clean, lint 0 errors (one
-   pre-existing verifier warning), contract 75/75, production build exit 0,
-   served HTTP-200 markup. Browser interaction remains unverified because the
-   built-in browser cannot reach a session-started localhost server.
-
-## Files changed
-
-- Created: `app/lib/forecast.ts`, `app/lib/__tests__/forecast.test.mjs`,
-  `app/components/forecast-dashboard.tsx`,
-  `docs/P025_FORECAST_DASHBOARD_EVIDENCE.md`.
-- Updated: `app/components/auditor-screen.tsx`, `app/lib/analysis.ts`,
-  `app/lib/__tests__/analysis.test.mjs`, `package.json`,
-  `docs/ACTIVE_TASK.md`, `docs/HANDOFF.md`, `docs/PROGRESS_LOG.md`,
-  `docs/AUDITOR_INTEGRATION_CHECKLIST.md`, and the P019 evidence addendum.
-
-## Verification performed and actual results
-
-- `npm test`: 65 passed, 0 failed.
-- `npm run typecheck`: clean.
-- `npm run lint`: 0 errors, one pre-existing untouched verifier warning.
-- `npm run verify:contract`: 75 passed, 0 failed.
-- `npm run build`: exit 0.
-- Real A–E: pass; values and distinctions recorded in P025 evidence.
-- Git baseline/remote matched at start; sibling repos untouched.
-
-## Incomplete edits and uncommitted changes
-
-Implementation and task documentation are complete but not yet committed. No
-known code defect or blocker.
-
-## Blockers or unknowns
-
-- Browser interaction, narrow-screen visual inspection, keyboard traversal and
-  print-boundary confirmation remain pending because this session's built-in
-  browser cannot open its self-hosted localhost server. This is a verification
-  limitation, not a code blocker.
-- Review remains pending; no approval is claimed.
-
-## Exact next action
-
-Inspect staged task-owned files, commit P025, push `main` normally without
-force, verify local HEAD equals remote `origin/main`, record the hash, and
-return the P025 evidence report. Stop after P025.
-
-## Related-repository dependencies
-
-- auditor-backend P020 `df1ecbd08369d71f88de9cf5f26e6d8fd44e8ebd`.
-- energy-ml-service P013 `7f71363aa9361e67a0cb2815b98aee79b0708cf9`.
-- Frontend calls Node only. Real checks used temporary committed exports and a
-  scratch DB; the harness files and scratch DB were removed. One extra pinned
-  backend source/build export remains in OS temp after automatic review
-  rejected recursive cleanup; see the P025 evidence. It is outside Git and no
-  service process remains running.
-
-## Commit reference
-
-P019: `855879caa33b1751430439bca5d393e99afb5f2e` (pushed, remote verified).
-P025: `3beb07b8d97930ffabc040a797b1d0f3f963e453` (pushed, remote verified).
+Exact next action: perform final diff review, update the remaining continuity
+wording, commit and push only task-owned frontend files, then verify the remote
+hash. Review remains pending; no approval is claimed.

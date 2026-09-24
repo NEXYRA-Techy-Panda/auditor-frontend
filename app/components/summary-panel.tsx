@@ -39,11 +39,13 @@ export default function SummaryPanel({
   datasetId,
   dataset,
   onTariffSaved,
+  onSummaryChange,
 }: {
   backendUrl: string;
   datasetId: string | null;
   dataset: DatasetItem | null;
   onTariffSaved?: () => void;
+  onSummaryChange?: (summary: DatasetSummary | null) => void;
 }) {
   const [summary, setSummary] = useState<DatasetSummary | null>(null);
   const [loading, setLoading] = useState(false);
@@ -82,6 +84,7 @@ export default function SummaryPanel({
         );
         if (!mounted.current || !tracker.current.isCurrent(reqId)) return;
         setSummary(s);
+        onSummaryChange?.(s);
         setFetchedAtIso(new Date().toISOString());
         setError(null);
         setErrorForId(null);
@@ -104,7 +107,7 @@ export default function SummaryPanel({
         if (inFlight.current === controller) inFlight.current = null;
       }
     },
-    [backendUrl],
+    [backendUrl, onSummaryChange],
   );
 
   useEffect(() => {
@@ -119,6 +122,7 @@ export default function SummaryPanel({
       setError(null);
       setErrorForId(null);
       setSnapshot(null);
+      onSummaryChange?.(null);
       if (datasetId) {
         setRateInput("");
         void load(datasetId);
@@ -133,7 +137,7 @@ export default function SummaryPanel({
       inFlight.current?.abort();
       inFlight.current = null;
     };
-  }, [datasetId, load]);
+  }, [datasetId, load, onSummaryChange]);
 
   const save = useCallback(async () => {
     if (!datasetId || saving) return;
@@ -380,7 +384,9 @@ function SummaryValues({
           Total energy
         </dt>
         <dd className="font-mono break-all text-zinc-900 dark:text-zinc-50">
-          {summary.energy_kwh} kWh
+          {summary.energy_kwh === null
+            ? "Unavailable — no observed readings"
+            : `${summary.energy_kwh} kWh`}
         </dd>
       </div>
       <div className="flex gap-2">
@@ -426,7 +432,16 @@ function SummaryValues({
           </dd>
         </div>
       )}
-      {summary.gaps === null ? (
+      {summary.gap_assessment?.status === "not_performed" ? (
+        <div className="flex gap-2">
+          <dt className="shrink-0 text-zinc-500 dark:text-zinc-400">
+            Gap assessment
+          </dt>
+          <dd className="font-mono text-xs text-amber-700 dark:text-amber-300">
+            Not performed — the empty compatibility gaps array is not a no-gaps claim.
+          </dd>
+        </div>
+      ) : summary.gaps === null ? (
         <div className="flex gap-2">
           <dt className="shrink-0 text-zinc-500 dark:text-zinc-400">
             Coverage gaps
@@ -441,7 +456,7 @@ function SummaryValues({
             Coverage gaps
           </dt>
           <dd className="font-mono text-xs text-zinc-700 dark:text-zinc-300">
-            None reported
+            No individual gap records were supplied.
           </dd>
         </div>
       ) : (

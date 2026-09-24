@@ -1,0 +1,2 @@
+contracts/v1/** text eol=lf
+scripts/verify-contract.mjs text eol=lf

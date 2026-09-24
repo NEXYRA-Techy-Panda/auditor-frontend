@@ -105,3 +105,25 @@ SSR markup and built-CSS inspection do not prove print pagination.
 - Implemented actual P020 `df1ecbd` job wiring and presentation for next 24h / 7d / complete next local calendar month; forecast and analysis remain separate, and forecast cost is never called savings.
 - Isolated pinned P020 + P013 A–E checks passed: 672-hour synthetic import; 720-point November forecast; backend total 10.799999999999999 kWh; unset→₹10→₹0 same-job costing; exact insufficient-data failure; real P010 reference finding 0.01 kWh / ₹0.10 with refrigerator excluded.
 - CORS was verified by HTTP preflight only. The built-in browser cannot open this session-started localhost server, so horizon/request/poll/chart/table/tariff/narrow-screen/keyboard interactions and print boundary remain manual browser checks. Forecasts stay outside the P014 print snapshot.
+
+## 10. P027 historical analytics (Mohan, M-A — OpenCode)
+
+- Added a strict adapter for committed P023 rooms, devices, timeseries and
+  weekday-analytics responses at backend `f3b8e2c` / feature `d683578`.
+- Added Overview, Rooms & devices, and Weekday patterns tabs with office,
+  room and device scope, half-open UTC window controls, Asia/Kolkata bucket
+  semantics, bounded pagination, coverage text, synthetic provenance and
+  `gap_assessment.status=not_performed` wording.
+- Full-period and visible-page totals remain separate; missing buckets remain
+  null and break the chart; room/device nominal values are not multiplied by
+  quantity.
+- P026 detector integration is complete against committed backend `d0fcd09`:
+  catalogue-backed excess-consumption/gradual-trend selection, strict reference
+  and evaluation windows, persisted polling/pagination, per-device assessment
+  states, coverage/exclusions, and drift `other_changes` observations. Detector
+  deviations remain unpriced and separate from vacancy totals.
+- Historical data remains outside the P014 printable dataset summary.
+- Verification is fixture/mock based for job results; read-only deployed
+  catalogue/health checks succeeded, but public imports are empty, so no
+  production analytics mutation or dataset upload was made. Browser interaction
+  remains pending.

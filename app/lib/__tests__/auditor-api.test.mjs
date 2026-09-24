@@ -290,6 +290,29 @@ describe("summary and tariff", () => {
     assert.equal(s.gaps, null);
   });
 
+  it("preserves nullable energy, explicit provenance and gap-assessment state", async () => {
+    const s = await getSummary(
+      ORIGIN,
+      "ds-empty",
+      async () => okJson({
+        data: {
+          dataset_id: "ds-empty",
+          energy_kwh: null,
+          cost_inr: null,
+          tariff_inr_per_kwh: 0,
+          synthetic: false,
+          synthetic_label: null,
+          gaps: [],
+          gap_assessment: { status: "not_performed", message: "No gap scan was performed." },
+        },
+      }),
+      5000,
+    );
+    assert.equal(s.energy_kwh, null);
+    assert.equal(s.synthetic, false);
+    assert.deepEqual(s.gap_assessment, { status: "not_performed", message: "No gap scan was performed." });
+  });
+
   it("rejects bare summary bodies", async () => {
     await assert.rejects(
       getSummary(ORIGIN, "ds-1", async () => okJson({ dataset_id: "ds-1", energy_kwh: 1 }), 5000),
@@ -424,7 +447,7 @@ describe("race guards (deferred mocks, same mechanism the UI uses)", () => {
     const s = (synthetic) => parseSummary({ data: { dataset_id: "x", energy_kwh: 1, synthetic } });
     assert.equal(s(true).synthetic, true);
     assert.equal(s(undefined).synthetic, null);
-    assert.equal(s(false).synthetic, null);
+    assert.equal(s(false).synthetic, false);
     assert.equal(s("yes").synthetic, null);
   });
 });

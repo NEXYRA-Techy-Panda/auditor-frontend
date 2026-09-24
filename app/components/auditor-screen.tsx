@@ -12,14 +12,17 @@ import DatasetsPanel from "./datasets-panel";
 import SummaryPanel from "./summary-panel";
 import FindingsPanel from "./findings-panel";
 import ForecastDashboard from "./forecast-dashboard";
+import DetectorPanel from "./detector-panel";
+import HistoricalAnalytics from "./historical-analytics";
 import UploadPanel from "./upload-panel";
-import { createSelectionRevision, type DatasetItem } from "../lib/auditor-api";
+import { createSelectionRevision, type DatasetItem, type DatasetSummary } from "../lib/auditor-api";
 
 export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [listToken, setListToken] = useState(0);
   const [tariffToken, setTariffToken] = useState(0);
   const [datasets, setDatasets] = useState<DatasetItem[]>([]);
+  const [selectedSummary, setSelectedSummary] = useState<DatasetSummary | null>(null);
   const revision = useRef(createSelectionRevision());
 
   const manualSelect = useCallback((datasetId: string) => {
@@ -71,11 +74,25 @@ export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
           datasetId={selectedId}
           dataset={datasets.find((d) => d.dataset_id === selectedId) ?? null}
           onTariffSaved={handleTariffSaved}
+          onSummaryChange={setSelectedSummary}
+        />
+        <HistoricalAnalytics
+          backendUrl={backendUrl}
+          datasetId={selectedId}
+          dataset={datasets.find((d) => d.dataset_id === selectedId) ?? null}
+          summary={selectedSummary}
+          tariffToken={tariffToken}
         />
         <FindingsPanel
           backendUrl={backendUrl}
           datasetId={selectedId}
           tariffToken={tariffToken}
+        />
+        <DetectorPanel
+          backendUrl={backendUrl}
+          datasetId={selectedId}
+          dataset={datasets.find((d) => d.dataset_id === selectedId) ?? null}
+          summary={selectedSummary}
         />
         <ForecastDashboard
           backendUrl={backendUrl}

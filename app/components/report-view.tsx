@@ -68,7 +68,11 @@ export default function ReportView({
         <dl>
           <div>
             <dt>Energy consumed</dt>
-            <dd>{snapshot.energyKwh} kWh</dd>
+            <dd>
+              {snapshot.energyKwh === null
+                ? "Unavailable — no observed readings"
+                : `${snapshot.energyKwh} kWh`}
+            </dd>
           </div>
           <div>
             <dt>Applied tariff</dt>
@@ -107,10 +111,15 @@ export default function ReportView({
         ) : (
           <p>Data period: not supplied by the backend.</p>
         )}
-        {snapshot.gaps === null ? (
+        {snapshot.gap_assessment?.status === "not_performed" ? (
+          <p>
+            Gap assessment not performed. The empty compatibility gaps array is
+            not a no-gaps claim.
+          </p>
+        ) : snapshot.gaps === null ? (
           <p>Coverage gaps: not supplied by the backend.</p>
         ) : snapshot.gaps.length === 0 ? (
-          <p>No coverage gaps reported by the backend.</p>
+          <p>No individual gap records were supplied by the backend.</p>
         ) : (
           <>
             <p>{snapshot.gaps.length} coverage gap(s) reported:</p>
@@ -122,7 +131,10 @@ export default function ReportView({
           </>
         )}
         {snapshot.synthetic === true && (
-          <p>Synthetic data — simulated for evaluation, not measured.</p>
+          <p>
+            Synthetic data — simulated for evaluation, not measured.
+            {snapshot.synthetic_label ? ` ${snapshot.synthetic_label}` : ""}
+          </p>
         )}
       </section>
 

@@ -43,7 +43,7 @@ export interface DatasetItem {
 
 export interface DatasetSummary {
   dataset_id: string;
-  energy_kwh: number;
+  energy_kwh: number | null;
   cost_inr: number | null;
   tariff_inr_per_kwh: number | null;
   coverage: {
@@ -55,10 +55,17 @@ export interface DatasetSummary {
   /** Null when the response carries no gap information (not "no gaps"). */
   gaps: unknown[] | null;
   /**
-   * True only when the backend explicitly marks the dataset synthetic.
-   * Absent/false means unknown — never infer that imported data is synthetic.
+   * True/false only when the backend explicitly supplies the flag. Absent
+   * means unknown — never infer that imported data is synthetic.
    */
   synthetic: boolean | null;
+  /** Optional P023 provenance label; never used to infer measured data. */
+  synthetic_label?: string | null;
+  /** P023's explicit gap-assessment state; an empty gaps array is not "no gaps". */
+  gap_assessment?: {
+    status: string;
+    message: string;
+  } | null;
 }
 
 /** HTTP or transport failure. Never fabricated as success. */
@@ -241,14 +248,32 @@ function parseCoverage(v: unknown): DatasetSummary["coverage"] {
   return { start_utc, end_utc, device_intervals, room_intervals };
 }
 
+function parseGapAssessment(value: unknown): DatasetSummary["gap_assessment"] {
+  if (!isRecord(value)) return null;
+  const status = reqString(value, "status");
+  const message = reqString(value, "message");
+  return status && message ? { status, message } : null;
+}
+
 export function parseSummary(json: unknown): DatasetSummary | null {
   const o = requireData(json);
   if (!o) return null;
   const dataset_id = reqString(o, "dataset_id");
-  const energy_kwh = reqFinite(o, "energy_kwh");
-  if (!dataset_id || energy_kwh === null) return null;
+  const energy_kwh =
+    o.energy_kwh === null
+      ? null
+      : typeof o.energy_kwh === "number" && Number.isFinite(o.energy_kwh)
+        ? o.energy_kwh
+        : undefined;
+  if (!dataset_id || energy_kwh === undefined) return null;
   const gaps = o.gaps;
   const syntheticRaw = o.synthetic;
+  const syntheticLabel =
+    o.synthetic_label === null
+      ? null
+      : typeof o.synthetic_label === "string"
+        ? o.synthetic_label
+        : null;
   return {
     dataset_id,
     energy_kwh,
@@ -256,7 +281,9 @@ export function parseSummary(json: unknown): DatasetSummary | null {
     tariff_inr_per_kwh: optFinite(o, "tariff_inr_per_kwh"),
     coverage: parseCoverage(o.coverage),
     gaps: Array.isArray(gaps) ? gaps : null,
-    synthetic: syntheticRaw === true ? true : null,
+    synthetic: syntheticRaw === true ? true : syntheticRaw === false ? false : null,
+    synthetic_label: syntheticLabel,
+    gap_assessment: parseGapAssessment(o.gap_assessment),
   };
 }
 
@@ -382,7 +409,7 @@ export interface ReportSnapshot {
   scenarioId: string | null;
   intervalSeconds: number | null;
   importedUtc: string | null;
-  energyKwh: number;
+  energyKwh: number | null;
   costInr: number | null;
   tariffInrPerKwh: number | null;
   coverage: {
@@ -393,6 +420,11 @@ export interface ReportSnapshot {
   } | null;
   gaps: unknown[] | null;
   synthetic: boolean | null;
+  synthetic_label?: string | null;
+  gap_assessment?: {
+    status: string;
+    message: string;
+  } | null;
   fetchedAtIso: string;
   generatedAtIso: string;
 }
@@ -481,6 +513,8 @@ export function buildReportSnapshot(args: {
     coverage,
     gaps: args.summary.gaps ? [...args.summary.gaps] : null,
     synthetic: args.summary.synthetic,
+    synthetic_label: args.summary.synthetic_label ?? null,
+    gap_assessment: args.summary.gap_assessment ?? null,
     fetchedAtIso: args.fetchedAtIso,
     generatedAtIso: args.generatedAtIso,
   };
