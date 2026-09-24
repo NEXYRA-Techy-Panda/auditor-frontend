@@ -115,11 +115,18 @@ Updated frontend source/continuity:
 - `docs/PROGRESS_LOG.md`
 - `docs/AUDITOR_INTEGRATION_CHECKLIST.md`
 
+## Publication
+
+- P028-UI implementation commit: `543c2c9734e50f7cf296580035f085de276cde7a`.
+- It was pushed normally to `origin/main`; local HEAD matched the remote main
+  ref immediately after the push.
+- A separate Vercel deployment observation is not claimed. The committed
+  backend route and the public deployment state remain distinct evidence.
+
 ## Remaining work
 
 - Browser/print verification remains manual because the available browser was
   disconnected.
-- Record the frontend commit/push and any separate Vercel deployment observation.
 - A future assignment may add explicit user economics assumptions through the
   committed preview contract and may enable comparison only with matched-run
   external-input provenance.

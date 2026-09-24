@@ -90,5 +90,8 @@ remote hash are recorded in `docs/P027_DASHBOARD_COMPLETION_EVIDENCE.md`.
   75/75 contract verification.
 - Browser/print capability check returned `browser.disconnected`; no browser
   interaction or deployment of the committed backend route is claimed.
-- Exact next action: commit and push task-owned frontend changes, record the
-  publication separately, then return the P028-UI evidence report.
+- P028-UI implementation commit `543c2c9734e50f7cf296580035f085de276cde7a`
+  was pushed normally to `origin/main`; local and remote refs matched at that
+  checkpoint. A separate deployment observation is not claimed.
+- Exact next action: push the final continuity update and return the P028-UI
+  evidence report.

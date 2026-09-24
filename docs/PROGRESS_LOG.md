@@ -572,3 +572,15 @@ correction entry; do not rewrite history.
   claimed and is recorded separately from client behavior.
 - No backend, Python, database, infrastructure or production mutation was made.
   The next action is the frontend-only commit/push and remote-ref verification.
+
+---
+
+## 2026-09-25 — P028-UI implementation publication (Mohan, M-A — OpenCode)
+
+- Committed the task-owned frontend implementation as
+  `543c2c9734e50f7cf296580035f085de276cde7a` and pushed it normally to
+  `origin/main`; local and remote refs matched immediately afterward.
+- The separate public Vercel deployment observation is intentionally not
+  claimed. Browser/print interaction remains unverified because the available
+  browser was disconnected.
+- The next action is the final continuity commit and remote-ref verification.
