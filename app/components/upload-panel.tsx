@@ -24,9 +24,11 @@ function formatBytes(bytes: number): string {
 export default function UploadPanel({
   backendUrl,
   onImported,
+  onViewDataset,
 }: {
   backendUrl: string;
-  onImported: (datasetId: string) => void;
+  onImported: (datasetId: string, uploadStartedAtMs: number) => void;
+  onViewDataset: (datasetId: string) => void;
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [phase, setPhase] = useState<Phase>("empty");
@@ -66,6 +68,7 @@ export default function UploadPanel({
     }
     const controller = new AbortController();
     inFlight.current = controller;
+    const startedAtMs = Date.now();
     setPhase("submitting");
     setError(null);
     setIssues([]);
@@ -80,7 +83,7 @@ export default function UploadPanel({
       if (!mounted.current) return;
       setResult(r);
       setPhase("success");
-      onImported(r.dataset_id);
+      onImported(r.dataset_id, startedAtMs);
     } catch (err) {
       if (!mounted.current) return;
       if (err instanceof ApiError && err.code === "VALIDATION_REJECTED") {
@@ -113,7 +116,7 @@ export default function UploadPanel({
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <label
           htmlFor="dataset-file"
-          className="cursor-pointer rounded-full border border-zinc-300 px-5 py-2 text-sm font-medium text-zinc-800 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
+          className="cursor-pointer rounded-full border border-zinc-300 px-5 py-2 text-sm font-medium text-zinc-800 transition-colors hover:bg-zinc-100 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-blue-600 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
         >
           Choose CSV or JSON file
         </label>
@@ -127,7 +130,7 @@ export default function UploadPanel({
         />
         {file && (
           <>
-            <p className="text-sm text-zinc-700 dark:text-zinc-300">
+            <p className="break-all text-sm text-zinc-700 dark:text-zinc-300">
               {file.name} · {formatBytes(file.size)}
             </p>
             <button
@@ -148,18 +151,28 @@ export default function UploadPanel({
         type="button"
         onClick={() => void submit()}
         disabled={!file || phase === "submitting"}
-        className="mt-4 rounded-full bg-zinc-900 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-300"
+        className="mt-4 rounded-full bg-zinc-900 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-300"
       >
         {phase === "submitting" ? "Uploading and validating…" : "Upload"}
       </button>
 
       {phase === "success" && result && (
-        <div className="mt-4 rounded-lg bg-green-50 p-4 dark:bg-green-950">
+        <div
+          role="status"
+          className="mt-4 rounded-lg bg-green-50 p-4 dark:bg-green-950"
+        >
           <p className="text-sm font-medium text-green-800 dark:text-green-200">
             Import {result.status}
             {result.alreadyImported ? " (already imported)" : ""} — dataset{" "}
-            <span className="font-mono">{result.dataset_id}</span>
+            <span className="font-mono break-all">{result.dataset_id}</span>
           </p>
+          <button
+            type="button"
+            onClick={() => onViewDataset(result.dataset_id)}
+            className="mt-2 rounded-full border border-green-700 px-4 py-1 text-sm font-medium text-green-800 transition-colors hover:bg-green-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-green-300 dark:text-green-200 dark:hover:bg-green-900"
+          >
+            View dataset
+          </button>
           {result.report.warnings.length > 0 && (
             <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-green-800 dark:text-green-200">
               {result.report.warnings.map((w, i) => (
@@ -176,7 +189,10 @@ export default function UploadPanel({
       )}
 
       {phase === "failure" && (
-        <div className="mt-4 rounded-lg bg-red-50 p-4 dark:bg-red-950">
+        <div
+          role="alert"
+          className="mt-4 rounded-lg bg-red-50 p-4 dark:bg-red-950"
+        >
           <p className="text-sm font-medium text-red-800 dark:text-red-200">
             Upload failed
           </p>

@@ -13,6 +13,8 @@ import {
   parseDatasetList,
   parseSummary,
   parseTariffInput,
+  shouldApplyTariffResult,
+  shouldAutoSelectImport,
   updateTariff,
   uploadDataset,
 } from "../auditor-api.ts";
@@ -240,5 +242,73 @@ describe("timeouts", () => {
   it("upload default is month-size suitable, api default is short", () => {
     assert.ok(UPLOAD_TIMEOUT_MS >= 60000);
     assert.ok(API_TIMEOUT_MS <= 15000);
+  });
+});
+
+describe("race guards (deferred mocks, same mechanism the UI uses)", () => {
+  function deferred() {
+    let resolve;
+    const promise = new Promise((r) => {
+      resolve = r;
+    });
+    return { promise, resolve };
+  }
+
+  it("a summary resolving after B was selected is ignored", async () => {
+    const tracker = createRequestTracker();
+    const gateA = deferred();
+    const gateB = deferred();
+    const fetchFor = (gate, body) => async () => {
+      await gate.promise;
+      return { ok: true, status: 200, json: async () => body };
+    };
+    const applied = [];
+    const idA = tracker.issue();
+    const pA = getSummary(ORIGIN, "A", fetchFor(gateA, { dataset_id: "A", energy_kwh: 1 }), 5000)
+      .then((s) => {
+        if (tracker.isCurrent(idA)) applied.push(["A", s]);
+      });
+    const idB = tracker.issue();
+    const pB = getSummary(ORIGIN, "B", fetchFor(gateB, { dataset_id: "B", energy_kwh: 2 }), 5000)
+      .then((s) => {
+        if (tracker.isCurrent(idB)) applied.push(["B", s]);
+      });
+    gateA.resolve();
+    await pA;
+    gateB.resolve();
+    await pB;
+    assert.deepEqual(applied.map(([id]) => id), ["B"]);
+  });
+
+  it("an obsolete error never replaces current state", async () => {
+    const tracker = createRequestTracker();
+    const idA = tracker.issue();
+    const idB = tracker.issue();
+    const errors = [];
+    // Late failure for A arrives while B is current: must be dropped.
+    if (tracker.isCurrent(idA)) errors.push("A-error");
+    if (tracker.isCurrent(idB)) errors.push("B-ok");
+    assert.deepEqual(errors, ["B-ok"]);
+  });
+
+  it("tariff completion applies only to the still-selected dataset", () => {
+    assert.equal(shouldApplyTariffResult("A", "A"), true);
+    assert.equal(shouldApplyTariffResult("A", "B"), false);
+    assert.equal(shouldApplyTariffResult("A", null), false);
+  });
+
+  it("upload completion auto-selects only without a newer manual selection", () => {
+    assert.equal(shouldAutoSelectImport(1000, null), true);
+    assert.equal(shouldAutoSelectImport(null, 2000), true);
+    assert.equal(shouldAutoSelectImport(1000, 900), true);
+    assert.equal(shouldAutoSelectImport(1000, 1000), true);
+    assert.equal(shouldAutoSelectImport(1000, 1500), false);
+  });
+
+  it("synthetic flag is explicit-only, never inferred", () => {
+    assert.equal(parseSummary({ dataset_id: "x", energy_kwh: 1, synthetic: true }).synthetic, true);
+    assert.equal(parseSummary({ dataset_id: "x", energy_kwh: 1 }).synthetic, null);
+    assert.equal(parseSummary({ dataset_id: "x", energy_kwh: 1, synthetic: false }).synthetic, null);
+    assert.equal(parseSummary({ dataset_id: "x", energy_kwh: 1, synthetic: "yes" }).synthetic, null);
   });
 });

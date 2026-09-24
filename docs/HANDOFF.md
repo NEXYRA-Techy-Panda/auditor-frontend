@@ -2,7 +2,7 @@
 
 ## 0. Continuity and current layer (F0.1, 2026-09-24)
 
-- Current layer: **P011 F6-frontend/auditor-alignment** (Agent A —
+- Current layer: **P012 A2-UI** (auditor reliability, Agent A —
   OpenCode) — status **completed**, review **pending**. Contract: **1.0.1
   authoritative, read-only**.
 - P001 F4-A addendum (completed, review pending): browser-side connection
@@ -20,6 +20,14 @@
   (5 open response questions for Codex); browser interaction unverified.
   Details in [P007_A1_UI_EVIDENCE.md](P007_A1_UI_EVIDENCE.md).
   Simulation-frontend untouched. History preserved.
+- P012 A2-UI addendum (completed, review pending): race hardening (scoped
+  summaries/errors, tariff + auto-select guards, aborts), a11y pass (live
+  regions, focus, zero-vs-unset wording, synthetic-only disclosure,
+  wrapping), 23/23 committed tests. Verified: typecheck/lint(0 errors)/
+  build/75-75 green, HTTP-200 shells; real backend down; browser
+  interaction unverified. Details in
+  [P012 evidence](P012_AUDITOR_UI_RELIABILITY_EVIDENCE.md).
+  History preserved.
 - P011 addendum (completed, review pending): backend aa53d0c inspected
   (P006 uncommitted) → checklist branch, UI preserved; created
   [AUDITOR_INTEGRATION_CHECKLIST.md](AUDITOR_INTEGRATION_CHECKLIST.md) and

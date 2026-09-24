@@ -92,7 +92,7 @@ export default function DatasetsPanel({
         <button
           type="button"
           onClick={() => void load()}
-          className="rounded-full border border-zinc-300 px-4 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          className="rounded-full border border-zinc-300 px-4 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
         >
           Refresh
         </button>
@@ -111,7 +111,10 @@ export default function DatasetsPanel({
       )}
 
       {error && items.length > 0 && (
-        <p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">
+        <p
+          role="status"
+          className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200"
+        >
           Refresh failed — showing the previously loaded list. {error}
         </p>
       )}

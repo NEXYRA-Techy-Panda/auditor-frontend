@@ -45,6 +45,11 @@ export interface DatasetSummary {
   cost_inr: number | null;
   tariff_inr_per_kwh: number | null;
   gaps: unknown[];
+  /**
+   * True only when the backend explicitly marks the dataset synthetic.
+   * Absent/false means unknown — never infer that imported data is synthetic.
+   */
+  synthetic: boolean | null;
 }
 
 /** HTTP or transport failure. Never fabricated as success. */
@@ -198,12 +203,14 @@ export function parseSummary(json: unknown): DatasetSummary | null {
   const energy_kwh = reqFinite(o, "energy_kwh");
   if (!dataset_id || energy_kwh === null) return null;
   const gaps = o.gaps;
+  const syntheticRaw = o.synthetic;
   return {
     dataset_id,
     energy_kwh,
     cost_inr: optFinite(o, "cost_inr"),
     tariff_inr_per_kwh: optFinite(o, "tariff_inr_per_kwh"),
     gaps: Array.isArray(gaps) ? gaps : [],
+    synthetic: syntheticRaw === true ? true : null,
   };
 }
 
@@ -245,6 +252,32 @@ export function createRequestTracker(): {
     },
     isCurrent: (id: number) => id === latest,
   };
+}
+
+/**
+ * Post-upload auto-select guard. An upload completion selects its dataset
+ * only when the user has not deliberately selected something newer since the
+ * upload started (timestamps from the same clock). Otherwise the UI keeps
+ * the newer selection and offers an explicit View action instead.
+ */
+export function shouldAutoSelectImport(
+  uploadStartedAtMs: number | null,
+  lastManualSelectAtMs: number | null,
+): boolean {
+  if (uploadStartedAtMs === null || lastManualSelectAtMs === null) return true;
+  return lastManualSelectAtMs <= uploadStartedAtMs;
+}
+
+/**
+ * Tariff-completion guard. A save issued for dataset A applies its reload
+ * only while A is still selected; otherwise the caller must leave B's form
+ * and summary untouched and say so.
+ */
+export function shouldApplyTariffResult(
+  submittedDatasetId: string,
+  currentDatasetId: string | null,
+): boolean {
+  return currentDatasetId !== null && submittedDatasetId === currentDatasetId;
 }
 
 async function readJsonError(

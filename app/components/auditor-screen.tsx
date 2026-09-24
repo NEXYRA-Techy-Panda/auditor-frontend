@@ -1,32 +1,54 @@
 "use client";
 
-// Auditor workspace screen state (P007 / A1-UI, Agent A — OpenCode).
+// Auditor workspace screen state (P007 / P012 A2-UI, Agent A — OpenCode).
 // Upload → list refresh + select → summary. List failures never erase the
-// upload result or a displayed summary.
+// upload result or a displayed summary. An upload completion auto-selects its
+// dataset only when the user has not deliberately selected something newer;
+// otherwise an explicit View action is offered.
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import ConnectionPanel from "./connection-panel";
 import DatasetsPanel from "./datasets-panel";
 import SummaryPanel from "./summary-panel";
 import UploadPanel from "./upload-panel";
+import { shouldAutoSelectImport } from "../lib/auditor-api";
 
 export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [listToken, setListToken] = useState(0);
+  const lastManualSelectAt = useRef<number | null>(null);
 
-  const handleImported = useCallback((datasetId: string) => {
-    setListToken((t) => t + 1); // reload the list…
-    setSelectedId(datasetId); // …select the new dataset and fetch its summary
+  const manualSelect = useCallback((datasetId: string) => {
+    lastManualSelectAt.current = Date.now();
+    setSelectedId(datasetId);
   }, []);
+
+  const handleImported = useCallback(
+    (datasetId: string, uploadStartedAtMs: number) => {
+      setListToken((t) => t + 1); // reload the list either way
+      if (
+        shouldAutoSelectImport(uploadStartedAtMs, lastManualSelectAt.current)
+      ) {
+        manualSelect(datasetId); // …select the new dataset and fetch summary
+      }
+      // Otherwise the user's newer manual selection stands; the upload panel
+      // offers an explicit View action for the imported dataset.
+    },
+    [manualSelect],
+  );
 
   return (
     <div className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 gap-6 px-4 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_320px]">
       <div className="flex flex-col gap-6">
-        <UploadPanel backendUrl={backendUrl} onImported={handleImported} />
+        <UploadPanel
+          backendUrl={backendUrl}
+          onImported={handleImported}
+          onViewDataset={manualSelect}
+        />
         <DatasetsPanel
           backendUrl={backendUrl}
           selectedId={selectedId}
-          onSelect={setSelectedId}
+          onSelect={manualSelect}
           refreshToken={listToken}
         />
         <SummaryPanel backendUrl={backendUrl} datasetId={selectedId} />

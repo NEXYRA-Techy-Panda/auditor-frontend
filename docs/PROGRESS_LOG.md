@@ -266,3 +266,32 @@ correction entry; do not rewrite history.
 - No mock verifies real integration; nothing uploaded; no browser checks. Sibling repos untouched. Review pending; no approval claimed.
 - Next action: commit, push main, verify remote hash; return P011 evidence. Stop after P011.
 - Commit references: P007 pushed; P011 recorded after push.
+---
+
+## 2026-09-24 20:58:00 +05:30 (IST) - P012 A2-UI started (actual, Agent A - OpenCode)
+
+- P011 accepted based on reported evidence. Real auditor integration and browser verification remain pending (recorded; mock/SSR checks are not confused with them).
+- Exclusive writer: auditor-frontend only. Codex owns auditor-backend (P006); no sibling/parent/contract writes; no backend processes started or stopped; no uncommitted reads.
+- Startup: AGENTS.md absent; full context + P007 evidence + checklist + implementation read; main clean at 37e1749, fetch clean.
+- Next action: audit six race invariants, fix defects, add guard helpers + deferred-mock tests, then a11y pass.
+- Review status: pending. P012 commit: none yet.
+---
+
+## 2026-09-24 21:05:00 +05:30 (IST) - P012 race guards + a11y implemented (actual, Agent A - OpenCode)
+
+- Defects fixed: summary shown under wrong selection (now scoped current/previous-labeled); tariff completion clobbering another selection (submitter-ID guard + notice); unconditional post-upload auto-select (timestamp guard + explicit View action); unscopable errors (errorForId); missing abort on summary load; tariff form carried across selections (reset on change).
+- Confirmed without rewrites: tracker stale protection, refresh-failure preservation, unmount aborts, timeout unknown-completion explanation.
+- A11y: role status/alert regions, described + invalid tariff input, focus-visible outlines, explicit zero-vs-unset wording, synthetic-only disclosure, wrapping, flex-wrap narrow rows.
+- Pure guards (shouldAutoSelectImport, shouldApplyTariffResult, error scoping via tracker, synthetic explicit-only) committed with deferred-mock race tests.
+- 23/23 tests; typecheck/lint(0 errors)/build green; 75/75 contract.
+- Next: serve + HTTP markup, real-backend probe (read-only), docs, commit, push.
+- Review status: pending.
+---
+
+## 2026-09-24 21:10:00 +05:30 (IST) - P012 A2-UI completed (actual, Agent A - OpenCode)
+
+- 6 defects fixed (scoped summaries/errors, tariff + auto-select guards, summary abort, form reset); tracker/refresh/timeout safeguards confirmed; a11y pass done.
+- 23/23 committed tests (5 new race tests via real lib + tracker); 75/75 contract; typecheck/lint(0 errors)/build green; HTTP-200 shells; own server stopped.
+- Real backend :4001 refused; nothing uploaded; browser interaction/CORS unverified. Simulation-frontend untouched. Review pending; no approval claimed.
+- Next action: commit, push main, verify remote hash; return P012 evidence. Stop after P012.
+- Commit references: P011 pushed; P012 recorded after push.
