@@ -8,6 +8,13 @@ coverage/
 # Working environment files (names only — never commit values).
 .env
 .env.*
+!.env.example
+
+# Next.js output and caches.
+/out/
+*.tsbuildinfo
+next-env.d.ts
+.vercel
 
 # Local databases (each backend owns its own file at runtime; never commit).
 *.sqlite
