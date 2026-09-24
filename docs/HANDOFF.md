@@ -3,7 +3,7 @@
 ## 0. Continuity and current layer (F0.1, 2026-09-24)
 
 - Current layer: **P027** (historical dashboard completion, Developer Mohan,
-  Agent M-A — OpenCode) — implementation **completed**, review **pending**.
+  Agent M-A — OpenCode) — **completed**, review **pending**.
   P025 remains completed/review pending and is preserved below.
 - P027 is wired to committed P023 at `f3b8e2c8dac923957d91e1a55591abc7e03fe67c`
   / feature `d683578106e718a4e1a42f9a29ce796bcb2d2857`, and to committed P026
@@ -11,7 +11,9 @@
   Historical analytics and detector controls/results are implemented in the
   frontend; later uncommitted backend edits were not read or used. Public
   read-only health and detector catalogue checks succeeded; no public dataset
-  is available for job execution. Final commit/push remains.
+  is available for job execution. Feature implementation commit:
+  `be99d03fef2dc550da6f24ff438defcd57f91c33`; final remote verification is
+  recorded in the P027 evidence/report.
 - Current layer before P027: **P025 A6** (forecast dashboard, Agent A —
   OpenCode) — status **completed**, review **pending**. Contract: **1.0.1
   authoritative, read-only**.

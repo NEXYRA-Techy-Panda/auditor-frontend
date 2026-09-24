@@ -492,3 +492,18 @@ correction entry; do not rewrite history.
   public imports remain empty, so no job or production mutation was made.
 - Next action: final diff review, commit/push, remote verification. Review
   remains pending; no approval is claimed.
+
+---
+
+## 2026-09-25 — P027 implementation committed (Mohan, M-A — OpenCode)
+
+- Feature implementation commit: `be99d03fef2dc550da6f24ff438defcd57f91c33`.
+- All staged files were task-owned frontend source, tests, portability rules and
+  continuity evidence; no sibling repository, database, generated artifact or
+  deployment configuration was changed.
+- Final verification before commit: 81 tests passed, typecheck passed, build
+  passed, contract verification 75/75, lint had zero errors and one pre-existing
+  verifier warning.
+- Next action: push normally and verify local HEAD equals `origin/main`; report
+  push/deployment outcome separately. Review remains pending; no approval is
+  claimed.

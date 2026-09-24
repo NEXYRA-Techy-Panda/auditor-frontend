@@ -8,7 +8,7 @@
 - Layer: Dashboard completion / historical analytics
 - Owner: Mohan
 - Exclusive write scope: `auditor-frontend` only
-- Status: implementation_complete
+- Status: completed
 - Review: pending
 
 ## Objective
@@ -104,6 +104,14 @@ no approval is claimed.
 - Current checks: 81 tests passed, typecheck passed, lint has only the
   pre-existing verifier warning, build and contract verification pass.
 
-Exact next action: perform final diff review, update the remaining continuity
-wording, commit and push only task-owned frontend files, then verify the remote
-hash. Review remains pending; no approval is claimed.
+## Publication
+
+- Feature implementation commit: `be99d03fef2dc550da6f24ff438defcd57f91c33`.
+- A final continuity-only commit will record the remote verification; the
+  feature commit above remains the implementation reference.
+- Review remains pending; no approval is claimed.
+
+Exact next action: push the completed P027 commits normally, verify local HEAD
+matches `origin/main`, then return the P027 evidence report. Browser-witnessed
+historical/detector interactions and the later full report workflow remain
+future work.

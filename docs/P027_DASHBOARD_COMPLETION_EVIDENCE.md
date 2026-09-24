@@ -126,9 +126,16 @@ Updated source/continuity:
 - `docs/PROGRESS_LOG.md`
 - `docs/AUDITOR_INTEGRATION_CHECKLIST.md`
 
+## Commit / publication
+
+- Feature implementation commit:
+  `be99d03fef2dc550da6f24ff438defcd57f91c33`.
+- A final continuity-only commit records the push/remote verification; the
+  feature hash above is the implementation reference.
+- Review remains pending; no approval is claimed.
+
 ## Remaining work
 
-Commit/push P027-owned files after final review and report the resulting hash.
 A future assignment should perform browser-witnessed historical/detector
 interactions and complete the full audit-report/ROI/comparison workflow.
 Review remains pending; no approval is claimed.
