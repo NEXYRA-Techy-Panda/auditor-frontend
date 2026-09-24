@@ -127,3 +127,26 @@ SSR markup and built-CSS inspection do not prove print pagination.
   catalogue/health checks succeeded, but public imports are empty, so no
   production analytics mutation or dataset upload was made. Browser interaction
   remains pending.
+
+## 11. P028-UI actionable audit report (Mohan, M-A — OpenCode)
+
+- Added an explicit Build/Rebuild audit report action backed by an immutable,
+  schema-versioned frontend snapshot. Dataset, tariff, summary and current
+  analysis/detector/forecast job identities are checked before capture.
+- Historical report data uses a canonical office/full-export scope and bounded
+  GET pagination with included/total/omitted counts and explicit excerpt labels.
+  It does not mix dashboard drill-down pages with full-period totals.
+- Report includes dataset/scope/provenance, historical consumption, vacancy
+  findings, P026 observations, completed forecast summary, recommendations,
+  limitations and explicit unavailable ROI/comparison boundaries.
+- Build never creates jobs or forecasts. Selection, tariff mutation/commit,
+  source refresh, pagination and detector-form changes invalidate the report;
+  stale snapshots cannot be printed.
+- Committed backend `fa95b130` report preview is wired using stable persisted
+  vacancy `finding_id` values. Server economics, assumptions, overlap exclusions
+  and ranking are displayed without browser calculations; comparison remains
+  explicitly unverified.
+- Focused model/fetch/preview tests are added; final verification passes (93
+  tests, typecheck, lint with the existing warning only, build and contract).
+  Browser/print evidence and separate deployment observation remain pending.
+  No production mutation was performed.

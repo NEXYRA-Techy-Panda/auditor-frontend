@@ -14,8 +14,13 @@ import FindingsPanel from "./findings-panel";
 import ForecastDashboard from "./forecast-dashboard";
 import DetectorPanel from "./detector-panel";
 import HistoricalAnalytics from "./historical-analytics";
+import AuditReportPanel from "./audit-report-panel";
 import UploadPanel from "./upload-panel";
 import { createSelectionRevision, type DatasetItem, type DatasetSummary } from "../lib/auditor-api";
+import type { AnalysisJob } from "../lib/analysis";
+import type { DetectorJob } from "../lib/detectors";
+import type { ForecastJob } from "../lib/forecast";
+import type { AuditReportSnapshot } from "../lib/audit-report";
 
 export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -23,22 +28,74 @@ export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
   const [tariffToken, setTariffToken] = useState(0);
   const [datasets, setDatasets] = useState<DatasetItem[]>([]);
   const [selectedSummary, setSelectedSummary] = useState<DatasetSummary | null>(null);
+  const [summaryRetrievedAt, setSummaryRetrievedAt] = useState<string | null>(null);
+  const [vacancyJob, setVacancyJob] = useState<AnalysisJob | null>(null);
+  const [vacancyRetrievedAt, setVacancyRetrievedAt] = useState<string | null>(null);
+  const [detectorJob, setDetectorJob] = useState<DetectorJob | null>(null);
+  const [detectorRetrievedAt, setDetectorRetrievedAt] = useState<string | null>(null);
+  const [forecastJob, setForecastJob] = useState<ForecastJob | null>(null);
+  const [forecastRetrievedAt, setForecastRetrievedAt] = useState<string | null>(null);
+  const [reportRevision, setReportRevision] = useState(0);
+  const [auditReportActive, setAuditReportActive] = useState(false);
   const revision = useRef(createSelectionRevision());
 
   const manualSelect = useCallback((datasetId: string) => {
     revision.current.manualSelect();
     setSelectedId(datasetId);
+    setSummaryRetrievedAt(null);
+    setVacancyRetrievedAt(null);
+    setDetectorRetrievedAt(null);
+    setForecastRetrievedAt(null);
+    setReportRevision((value) => value + 1);
   }, []);
 
   const captureRevision = useCallback(() => revision.current.current(), []);
 
-  const handleTariffSaved = useCallback(() => {
-    setTariffToken((t) => t + 1); // findings refetch recomputed costs
+  const markReportSourceChanged = useCallback(() => {
+    setReportRevision((value) => value + 1);
   }, []);
+
+  const handleSummaryChange = useCallback((summary: DatasetSummary | null) => {
+    setSelectedSummary(summary);
+    setSummaryRetrievedAt(summary ? new Date().toISOString() : null);
+    markReportSourceChanged();
+  }, [markReportSourceChanged]);
+
+  const handleVacancyJobChange = useCallback((job: AnalysisJob | null) => {
+    setVacancyJob(job);
+    setVacancyRetrievedAt(job ? new Date().toISOString() : null);
+    markReportSourceChanged();
+  }, [markReportSourceChanged]);
+
+  const handleDetectorJobChange = useCallback((job: DetectorJob | null) => {
+    setDetectorJob(job);
+    setDetectorRetrievedAt(job ? new Date().toISOString() : null);
+    markReportSourceChanged();
+  }, [markReportSourceChanged]);
+
+  const handleForecastJobChange = useCallback((job: ForecastJob | null) => {
+    setForecastJob(job);
+    setForecastRetrievedAt(job ? new Date().toISOString() : null);
+    markReportSourceChanged();
+  }, [markReportSourceChanged]);
+
+  const handleAuditReportChange = useCallback((snapshot: AuditReportSnapshot | null) => {
+    setAuditReportActive(snapshot !== null);
+  }, []);
+
+  const handleTariffMutationStart = useCallback(() => {
+    markReportSourceChanged();
+  }, [markReportSourceChanged]);
+
+  const handleTariffCommitted = useCallback(() => {
+    setTariffToken((t) => t + 1); // findings/forecasts refetch costs; no jobs rerun
+    markReportSourceChanged();
+  }, [markReportSourceChanged]);
 
   const handleListChange = useCallback((items: DatasetItem[]) => {
     setDatasets(items);
-  }, []);
+    markReportSourceChanged();
+  }, [markReportSourceChanged]);
 
   const handleImported = useCallback(
     (datasetId: string, submittedRev: number) => {
@@ -46,6 +103,11 @@ export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
       if (revision.current.shouldAutoSelect(submittedRev)) {
         revision.current.autoSelect();
         setSelectedId(datasetId); // …select the new dataset and fetch summary
+        setSummaryRetrievedAt(null);
+        setVacancyRetrievedAt(null);
+        setDetectorRetrievedAt(null);
+        setForecastRetrievedAt(null);
+        setReportRevision((value) => value + 1);
       }
       // Otherwise the user's newer manual selection stands; the upload panel
       // offers an explicit View action for the imported dataset.
@@ -73,8 +135,11 @@ export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
           backendUrl={backendUrl}
           datasetId={selectedId}
           dataset={datasets.find((d) => d.dataset_id === selectedId) ?? null}
-          onTariffSaved={handleTariffSaved}
-          onSummaryChange={setSelectedSummary}
+          onSummaryChange={handleSummaryChange}
+          onTariffMutationStart={handleTariffMutationStart}
+          onTariffCommitted={handleTariffCommitted}
+          refreshToken={tariffToken}
+          suppressPrintSummary={auditReportActive}
         />
         <HistoricalAnalytics
           backendUrl={backendUrl}
@@ -87,18 +152,37 @@ export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
           backendUrl={backendUrl}
           datasetId={selectedId}
           tariffToken={tariffToken}
+          onJobChange={handleVacancyJobChange}
         />
         <DetectorPanel
           backendUrl={backendUrl}
           datasetId={selectedId}
           dataset={datasets.find((d) => d.dataset_id === selectedId) ?? null}
           summary={selectedSummary}
+          onJobChange={handleDetectorJobChange}
         />
         <ForecastDashboard
           backendUrl={backendUrl}
           datasetId={selectedId}
           dataset={datasets.find((d) => d.dataset_id === selectedId) ?? null}
           tariffToken={tariffToken}
+          onJobChange={handleForecastJobChange}
+        />
+        <AuditReportPanel
+          backendUrl={backendUrl}
+          datasetId={selectedId}
+          dataset={datasets.find((d) => d.dataset_id === selectedId) ?? null}
+          summary={selectedSummary}
+          tariffToken={tariffToken}
+          revision={reportRevision}
+          summaryRetrievedAt={summaryRetrievedAt}
+          vacancyRetrievedAt={vacancyRetrievedAt}
+          detectorRetrievedAt={detectorRetrievedAt}
+          forecastRetrievedAt={forecastRetrievedAt}
+          vacancyJob={vacancyJob}
+          detectorJob={detectorJob}
+          forecastJob={forecastJob}
+          onSnapshotChange={handleAuditReportChange}
         />
       </div>
       <div className="flex flex-col gap-6">

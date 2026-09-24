@@ -24,10 +24,12 @@ export default function FindingsPanel({
   backendUrl,
   datasetId,
   tariffToken,
+  onJobChange,
 }: {
   backendUrl: string;
   datasetId: string | null;
   tariffToken: number;
+  onJobChange?: (job: AnalysisJob | null) => void;
 }) {
   const [jobId, setJobId] = useState<string | null>(null);
   const [job, setJob] = useState<AnalysisJob | null>(null);
@@ -72,6 +74,7 @@ export default function FindingsPanel({
           return;
         }
         setJob(next);
+        onJobChange?.(next);
         setJobError(null);
         if (next.status === "completed") {
           setCompletedJob(next);
@@ -89,7 +92,7 @@ export default function FindingsPanel({
         if (inFlight.current === controller) inFlight.current = null;
       }
     },
-    [backendUrl, datasetId, stopPolling],
+    [backendUrl, datasetId, onJobChange, stopPolling],
   );
 
   // Reset job scope when the selection changes; poll while non-terminal.
@@ -102,6 +105,7 @@ export default function FindingsPanel({
       inFlight.current = null;
       setJobId(null);
       setJob(null);
+      onJobChange?.(null);
       setCompletedJob(null);
       setJobError(null);
       setPage(1);
@@ -113,7 +117,7 @@ export default function FindingsPanel({
       inFlight.current?.abort();
       inFlight.current = null;
     };
-  }, [datasetId, stopPolling]);
+  }, [datasetId, onJobChange, stopPolling]);
 
   useEffect(() => {
     if (!jobId || !datasetId) return;
@@ -160,6 +164,7 @@ export default function FindingsPanel({
       const ack = await submitAnalysisJob(origin, datasetId, fetch);
       if (!mounted.current) return;
       setJobId(ack.job_id);
+      onJobChange?.(null);
       setPage(1);
       // No optimistic job object: the first poll establishes real state.
       // An uncertain creation is never auto-retried; failure just re-enables
@@ -172,7 +177,7 @@ export default function FindingsPanel({
     } finally {
       if (mounted.current) setCreating(false);
     }
-  }, [datasetId, creating, backendUrl]);
+  }, [datasetId, creating, backendUrl, onJobChange]);
 
   if (!datasetId) {
     return (
@@ -357,7 +362,7 @@ export default function FindingsPanel({
                       <button
                         type="button"
                         disabled={pagination.page <= 1}
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        onClick={() => { onJobChange?.(null); setPage((p) => Math.max(1, p - 1)); }}
                         className="rounded-full border border-zinc-300 px-4 py-1 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
                       >
                         Previous
@@ -367,7 +372,7 @@ export default function FindingsPanel({
                         disabled={
                           pagination.page * pagination.page_size >= pagination.total
                         }
-                        onClick={() => setPage((p) => p + 1)}
+                        onClick={() => { onJobChange?.(null); setPage((p) => p + 1); }}
                         className="rounded-full border border-zinc-300 px-4 py-1 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
                       >
                         Next

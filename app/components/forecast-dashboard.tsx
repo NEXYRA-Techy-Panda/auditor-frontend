@@ -48,11 +48,13 @@ export default function ForecastDashboard({
   datasetId,
   dataset,
   tariffToken,
+  onJobChange,
 }: {
   backendUrl: string;
   datasetId: string | null;
   dataset: DatasetItem | null;
   tariffToken: number;
+  onJobChange?: (job: ForecastJob | null) => void;
 }) {
   const [horizon, setHorizon] = useState<ForecastHorizon>("next_24h");
   const [activeForecastId, setActiveForecastId] = useState<string | null>(null);
@@ -122,7 +124,10 @@ export default function ForecastDashboard({
           return;
         }
         setRequestError(null);
-        if (next.horizon === horizon) setJob(next);
+        if (next.horizon === horizon) {
+          setJob(next);
+          onJobChange?.(next);
+        }
         if (next.status === "completed") {
           setCompletedJob(next);
           stopPolling();
@@ -152,7 +157,7 @@ export default function ForecastDashboard({
         pollFlight.current.finish(flightToken);
       }
     },
-    [backendUrl, datasetId, horizon, stopPolling],
+    [backendUrl, datasetId, horizon, onJobChange, stopPolling],
   );
 
   // Reset active request scope immediately on dataset/horizon change. The
@@ -176,6 +181,7 @@ export default function ForecastDashboard({
       setActiveHorizon(null);
       setSubmission(null);
       setJob(null);
+      onJobChange?.(null);
       setCreating(false);
       setRequestError(null);
     }, 0);
@@ -191,7 +197,7 @@ export default function ForecastDashboard({
       pollAbort.current = null;
       stopPolling();
     };
-  }, [datasetId, horizon, scopeToken, stopPolling]);
+  }, [datasetId, horizon, onJobChange, scopeToken, stopPolling]);
 
   // Poll the exact accepted ID/horizon. Single-flight + abort + terminal stop
   // prevent overlap, late application and endless polling.
@@ -287,6 +293,7 @@ export default function ForecastDashboard({
       setActiveHorizon(accepted.horizon);
       setSubmission(accepted);
       setJob(null);
+      onJobChange?.(null);
       // No automatic retry: a timeout/uncertain response is reported to the
       // user and only an explicit new click can create another job.
     } catch (error) {
@@ -314,7 +321,7 @@ export default function ForecastDashboard({
         setCreating(false);
       }
     }
-  }, [backendUrl, datasetId, horizon, scopeToken]);
+  }, [backendUrl, datasetId, horizon, onJobChange, scopeToken]);
 
   if (!datasetId) {
     return (
@@ -373,9 +380,10 @@ export default function ForecastDashboard({
             id="forecast-horizon"
             value={horizon}
             aria-describedby="forecast-horizon-help"
-            onChange={(event) =>
-              setHorizon(event.target.value as ForecastHorizon)
-            }
+            onChange={(event) => {
+              onJobChange?.(null);
+              setHorizon(event.target.value as ForecastHorizon);
+            }}
             className="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
           >
             <option value="next_24h">Next 24 hours</option>

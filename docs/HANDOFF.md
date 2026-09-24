@@ -2,9 +2,16 @@
 
 ## 0. Continuity and current layer (F0.1, 2026-09-24)
 
-- Current layer: **P027** (historical dashboard completion, Developer Mohan,
-  Agent M-A — OpenCode) — **completed**, review **pending**.
-  P025 remains completed/review pending and is preserved below.
+- Current layer: **P028-UI** (actionable audit report, Developer Mohan,
+  Agent M-A — OpenCode) — implementation **in_progress**, review **pending**.
+  P027 remains completed/review pending and is preserved below.
+- P028-UI now uses committed backend `fa95b130` preview economics at
+  `POST /api/v1/reports/preview`, with stable vacancy `finding_id` requests,
+  server-derived assumptions/overlap/ranking, and unverified comparison
+  disclosure. It also has immutable snapshots, bounded historical/job
+  pagination and print gating. Final verification passes (93 tests, typecheck,
+  lint with the existing warning only, build and 75/75 contract verification);
+  browser/print evidence and the separate publication/deployment record remain.
 - P027 is wired to committed P023 at `f3b8e2c8dac923957d91e1a55591abc7e03fe67c`
   / feature `d683578106e718a4e1a42f9a29ce796bcb2d2857`, and to committed P026
   detector integration at `d0fcd092fa39ca17a7efbcdaeffd4e43bd1c2eb1`.

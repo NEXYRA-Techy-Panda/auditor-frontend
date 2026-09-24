@@ -2,116 +2,93 @@
 
 ## Assignment
 
-- Prompt: P027
+- Prompt: P028-UI
 - Developer: Mohan
 - Agent: M-A — OpenCode
-- Layer: Dashboard completion / historical analytics
+- Layer: Actionable audit report
 - Owner: Mohan
-- Exclusive write scope: `auditor-frontend` only
-- Status: completed
+- Exclusive write scope: `auditor-frontend` main working copy only
+- Status: implementation_complete; review pending
 - Review: pending
 
 ## Objective
 
-Finish the auditor dashboard with committed P023 historical analytics:
-office timeseries, room/device breakdowns and drill-down, weekday comparison,
-coverage and synthetic provenance. Preserve imports, tariff editing, vacancy
-findings, forecasts, and the P014 printable dataset summary. P026 detector
-integration is now included because its committed interface appeared during
-this task.
+Extend the existing fixed printable dataset summary into an actionable audit
+report using only confirmed, available historical, vacancy-analysis, P026
+device-observation and completed forecast results. Add an explicit immutable
+“Build audit report” action, use the committed server report-preview economics
+endpoint, preserve the existing dashboard and browser print mechanism, and
+leave matched-run comparison unavailable unless verified provenance exists. Do
+not create jobs or forecasts while building a report.
 
 ## Starting state
 
 - Frontend branch: `main`, clean.
-- Frontend HEAD: `6f7a94b523f5b27a56cebcb3bedfe645798cee60`.
-- Committed auditor-backend historical reference: `f3b8e2c8dac923957d91e1a55591abc7e03fe67c`.
-- P023 feature reference: `d683578106e718a4e1a42f9a29ce796bcb2d2857`.
-- P026 committed interface used: `d0fcd092fa39ca17a7efbcdaeffd4e43bd1c2eb1`.
-- Later P026 worktree edits remain under M-D ownership; they were not read,
-  edited, installed, started, or committed.
-- No `AGENTS.md` exists in the parent or frontend repository.
-- Contract: 1.0.1, read-only; public base remains
+- Frontend HEAD: `7b7f9f44b727c2e405df56922f945c1b077d31ce`.
+- Committed backend main inspected: `fa95b1308c8e2916ffde4e98c6d64cbb81edca9e`.
+- Report preview feature merge: `c5db138d437280c77ae90c488ac067f8720b446e`.
+- Committed report preview route: `POST /api/v1/reports/preview`.
+- P028 economics preparation branch: `mohan/p028-report-math-prep` at
+  `f4f20a3`; it is owned by M-B and is read-only for this task.
+- P027 implementation commits remain published: `be99d03` and `13e5f5f`.
+- No AGENTS.md exists in the parent or frontend repository.
+- Contract: 1.0.1, read-only. Public API base remains
   `https://git-pipeline.metatronhost.in/auditor`.
+- Do not modify, install into, start, or commit any sibling repository or
+  worktree. Do not stop the process owning port 19002.
 
-## Preserved prior outcome
+## Preserved P027 outcome
 
-P025 is complete and published: the forecast adapter/dashboard, P020 job
-polling, accessible chart/table, null-versus-zero tariff semantics, and the
-P019 nested-findings correction are preserved. P025 review remains pending;
-no approval is claimed.
+P027 delivered historical P023 analytics, committed P026 detector controls and
+results, preserved vacancy/forecast/tariff/import behavior, and passed 81
+frontend tests, typecheck, build and 75/75 contract verification. P027 browser
+interaction and deployment confirmation remain pending; its Git push and
+remote hash are recorded in `docs/P027_DASHBOARD_COMPLETION_EVIDENCE.md`.
 
-### Prior P025 record retained for continuity
+## P028-UI implementation requirements
 
-- Baseline was clean/remote-matched at P019 `855879c`; P025 used committed P020
-  `df1ecbd` and Python P013 `7f71363` only.
-- Implemented all forecast horizons, strict lifecycle/origin parsing, polling,
-  recovery, tariff GET repricing without rerun, coverage/warnings/assumptions,
-  accessible SVG plus all-hour table, and 65 passing tests at that layer.
-- Isolated A–E checks covered a 672-hour import, 720-point month, ₹10→₹0
-  same-job costing, insufficient data, CORS, and real P010 output (0.01 kWh /
-  ₹0.10; refrigerator excluded). P019’s nested `result.findings` correction is
-  preserved. Browser interaction remained unverified due the session browser
-  limitation. P025 commit was `3beb07b8d97930ffabc040a797b1d0f3f963e453`.
+1. Read current report, analysis, forecast, historical and detector components.
+2. Inspect and use the committed backend report-preview interface once; do not
+   invent endpoints or duplicate economics math.
+3. Add a typed immutable report snapshot containing dataset/job identities,
+   retrieval timestamps, scope, source data, pagination counts, server-preview
+   economics and limitations.
+4. Add explicit Build audit report action/preview/print behavior with stale
+   dataset/tariff invalidation and no automatic analysis/forecast creation.
+5. Add focused snapshot, identity, pagination, null/zero, missing/failed and
+   ROI/comparison-boundary tests.
+6. Create `docs/P028_UI_AUDIT_REPORT_EVIDENCE.md` and update continuity files.
+7. Run tests, typecheck, lint, build and contract verification; record real,
+   mocked and browser evidence separately.
 
-## Required implementation
+## Checkpoint 1 — startup
 
-1. Add a strict P023 adapter using actual committed response shapes.
-2. Add historical dashboard sections/tabs for overview, rooms/devices, and
-   weekday patterns without redesigning existing panels.
-3. Preserve half-open windows, explicit Asia/Kolkata timezone, page/full-period
-   totals, null/missing/partial states, gap-assessment wording, and explicit
-   synthetic provenance.
-4. Add focused fixtures/tests for the P023 reference values and stale guards.
-5. Update continuity/evidence/checklist files only within this repository.
-6. Do not query or mutate production, touch databases, change deployment
-   settings, or access Python directly.
+- Frontend is clean and remote-matched at the reported baseline.
+- No production mutation, database access, job submission, or infrastructure
+  change has been made.
+- Exact next action: finish the committed-interface inspection and map the
+  existing report/state boundaries before editing report source.
 
-## Checkpoint 1 — adapter, dashboard, and fixtures
+## Checkpoint 2 — report implementation
 
-- Strict P023 adapter added at `app/lib/historical.ts` using the committed
-  `f3b8e2c` route shapes and canonical `from`/`to` query names.
-- Historical dashboard added at `app/components/historical-analytics.tsx` with
-  Overview, Rooms & devices, and Weekday patterns tabs.
-- Summary/print handling now preserves nullable energy, explicit provenance,
-  and `gap_assessment.status=not_performed` without calling an empty gaps array
-  “no gaps”.
-- Added `.gitattributes` LF rules for the mirrored contract paths.
-- Added seven historical adapter tests using P023-shaped fixtures, including
-  page/full totals, partial/missing buckets, reference energy, weekday means,
-  quantity separation, and `UNSUPPORTED_INPUT`.
-- Existing frontend checks currently pass: 73 tests, typecheck clean, lint has
-  only the pre-existing verifier warning, build and contract verification pass.
-- Public read-only check found the deployed auditor healthy but with zero
-  imported datasets; no production mutation was attempted. Local port 19002
-  is occupied by an existing VS Code process, so no pinned backend service was
-  started.
-
-## Checkpoint 2 — P026 interface discovered and integrated
-
-- A post-P023 backend check found committed P026 at `d0fcd09`; the committed
-  catalogue, submit/poll/pagination, window, coverage, exclusion and detector
-  result shapes were read without opening later M-D worktree edits.
-- Added `app/lib/detectors.ts`, `app/components/detector-panel.tsx` and seven
-  P026 fixture tests. The existing vacancy FindingsPanel remains the default
-  and is not replaced.
-- Added catalogue-backed excess-consumption/gradual-trend controls, strict
-  reference/evaluation windows, persisted job polling, scoped stale guards,
-  coverage/exclusion/device assessment display, drift `other_changes`, and
-  explicit insufficient/unsupported states. Detector output is unpriced and
-  separate from vacancy totals.
-- Read-only deployed `GET /api/v1/detectors` returned both supported IDs;
-  public imports remain empty, so no detector job was submitted.
-- Current checks: 81 tests passed, typecheck passed, lint has only the
-  pre-existing verifier warning, build and contract verification pass.
-
-## Publication
-
-- Feature implementation commit: `be99d03fef2dc550da6f24ff438defcd57f91c33`.
-- Final continuity commit: `13e5f5fdc4390cdfae91f006945d346cecf3b93a`.
-- Both commits were pushed normally; local HEAD equals `origin/main`.
-- The public Vercel URL returned HTTP 200, but its HTML did not expose the new
-  client-rendered labels; deployment success is not independently claimed.
-- Review remains pending; no approval is claimed.
-
-Exact next action: return the P027 evidence report. Browser-witnessed historical/
-detector interactions and the later full report workflow remain future work.
+- Backend main `fa95b130` now commits the read-only
+  `POST /api/v1/reports/preview` contract. The frontend sends stable persisted
+  vacancy `finding_id` values and renders server economics, assumptions,
+  overlap exclusions, ranking and unverified comparison without browser-side
+  calculations.
+- Added immutable typed report snapshots, explicit unavailable/unverified
+  comparison boundaries, canonical office/full-export historical queries,
+  bounded page retrieval, source retrieval timestamps, job identity/context
+  checks, and explicit excerpt/omission counts.
+- Added the Build/Rebuild audit report action and printable preview. Current
+  analysis/detector/forecast jobs are observed only; Build never submits a job
+  or forecast. Stale dataset/tariff/source contexts cannot be printed.
+- Added current-job callbacks and report invalidation for selection, tariff
+  mutation/commit, summary refresh, pagination and detector/form changes.
+- Added seven focused report-model/fetch tests plus five committed preview-client
+  tests; final verification passes with 93 tests, typecheck, lint, build and
+  75/75 contract verification.
+- Browser/print capability check returned `browser.disconnected`; no browser
+  interaction or deployment of the committed backend route is claimed.
+- Exact next action: commit and push task-owned frontend changes, record the
+  publication separately, then return the P028-UI evidence report.

@@ -442,15 +442,18 @@ async function requestJson(
   fetchImpl: FetchLike,
   timeoutMs: number,
   fallback: string,
-  init?: { method?: string; body?: BodyInit | null },
+  init?: { method?: string; body?: BodyInit | null; signal?: AbortSignal },
 ): Promise<unknown> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const requestSignal = init?.signal
+    ? AbortSignal.any([init.signal, controller.signal])
+    : controller.signal;
   try {
     const res = await fetchImpl(url, {
       ...init,
       headers: { "Content-Type": "application/json" },
-      signal: controller.signal,
+      signal: requestSignal,
     });
     if (!res.ok) {
       let detail: { code?: string; message?: string; field?: string } = {};
@@ -534,12 +537,14 @@ export async function getAnalysisJob(
   page = 1,
   pageSize: number = FINDINGS_PAGE_SIZE,
   timeoutMs: number = JOB_TIMEOUT_MS,
+  signal?: AbortSignal,
 ): Promise<AnalysisJob> {
   const json = await requestJson(
     `${origin}/api/v1/analysis/jobs/${encodeURIComponent(jobId)}?page=${page}&page_size=${pageSize}`,
     fetchImpl,
     timeoutMs,
     "Analysis status request failed",
+    { signal },
   );
   const parsed = parseAnalysisJob(json);
   if (!parsed || parsed.job_id !== jobId) {

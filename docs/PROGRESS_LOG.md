@@ -522,3 +522,53 @@ correction entry; do not rewrite history.
 - No task-owned process or temporary database was started. Browser-witnessed
   interactions and the later report workflow remain pending. Review remains
   pending; no approval is claimed.
+
+---
+
+## 2026-09-25 — P028-UI implementation checkpoint (Mohan, M-A — OpenCode)
+
+- Audited committed backend main `676e82c` and isolated economics-preparation
+  branch `f4f20a3`; no report-economics/ROI/comparison HTTP route is committed.
+  No sibling files or processes were touched.
+- Added immutable report snapshot/model, bounded historical and current-job
+  page collection, explicit excerpt/omission metadata, source retrieval
+  timestamps, and unavailable economics/comparison boundaries.
+- Added Build/Rebuild audit report preview and print target, current job
+  callbacks, stale-context invalidation, summary refresh protection, and
+  tariff mutation/commit coordination. Build performs GETs only and never
+  creates analysis/detector/forecast jobs.
+- Added focused P028 model/fetch tests; the full suite is expected to be 87
+  passing after final verification.
+- Next action: complete final checks, attempt browser/print verification,
+  finalize evidence and commit/push task-owned frontend files. Review remains
+  pending; no approval is claimed.
+
+---
+
+## 2026-09-25 — P028-UI backend preview continuation (Mohan, M-A — OpenCode)
+
+- New committed backend main `fa95b130` adds the read-only
+  `POST /api/v1/reports/preview` contract. The frontend adapter now sends
+  stable persisted vacancy `finding_id` values and displays server-derived
+  economics, assumptions, overlap exclusions, ranking and unverified scenario
+  comparison; no browser-side financial calculation was added.
+- Added five preview-client tests; the full suite is expected to be 93 passing
+  after final verification. No backend, Python, database, deployment or
+  production mutation was performed.
+- Next action: rerun final checks, record the disconnected browser limitation,
+  finalize evidence and commit/push frontend-only changes. Review remains
+  pending; no approval is claimed.
+
+---
+
+## 2026-09-25 — P028-UI final verification (Mohan, M-A — OpenCode)
+
+- Final frontend checks pass: 93 tests, typecheck, lint with zero errors and the
+  pre-existing verifier warning only, production build, contract `1.0.1`
+  verification and `git diff --check`.
+- The built-in browser returned `browser.disconnected`; browser preview, print
+  dialog and narrow-layout behavior remain manual/unverified. The committed
+  backend preview route is interface-verified but public deployment is not
+  claimed and is recorded separately from client behavior.
+- No backend, Python, database, infrastructure or production mutation was made.
+  The next action is the frontend-only commit/push and remote-ref verification.

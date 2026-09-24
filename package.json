@@ -8,7 +8,7 @@
     "start": "next start -p 3001",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "node --test app/lib/__tests__/auditor-api.test.mjs app/lib/__tests__/analysis.test.mjs app/lib/__tests__/forecast.test.mjs app/lib/__tests__/historical.test.mjs app/lib/__tests__/detectors.test.mjs",
+    "test": "node --test app/lib/__tests__/auditor-api.test.mjs app/lib/__tests__/analysis.test.mjs app/lib/__tests__/forecast.test.mjs app/lib/__tests__/historical.test.mjs app/lib/__tests__/detectors.test.mjs app/lib/__tests__/audit-report.test.mjs app/lib/__tests__/report-preview.test.mjs",
     "check:live": "node scripts/check-live-integration.mjs",
     "verify:contract": "node scripts/verify-contract.mjs"
   },

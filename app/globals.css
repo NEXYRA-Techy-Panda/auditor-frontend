@@ -65,6 +65,22 @@ body {
     margin-bottom: 6pt;
   }
   .report-print section {
+    break-inside: auto;
+  }
+  .report-print table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .report-print thead {
+    display: table-header-group;
+  }
+  .report-print tr {
+    break-inside: avoid;
+  }
+  .report-print h3 {
+    break-after: avoid;
+  }
+  .report-print li {
     break-inside: avoid;
   }
   .report-print dl > div {
