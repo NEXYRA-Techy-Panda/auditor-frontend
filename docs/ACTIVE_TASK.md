@@ -124,9 +124,12 @@ return the P025 evidence report. Stop after P025.
 - auditor-backend P020 `df1ecbd08369d71f88de9cf5f26e6d8fd44e8ebd`.
 - energy-ml-service P013 `7f71363aa9361e67a0cb2815b98aee79b0708cf9`.
 - Frontend calls Node only. Real checks used temporary committed exports and a
-  scratch DB; all were removed.
+  scratch DB; the harness files and scratch DB were removed. One extra pinned
+  backend source/build export remains in OS temp after automatic review
+  rejected recursive cleanup; see the P025 evidence. It is outside Git and no
+  service process remains running.
 
 ## Commit reference
 
 P019: `855879caa33b1751430439bca5d393e99afb5f2e` (pushed, remote verified).
-P025: none yet.
+P025: `3beb07b8d97930ffabc040a797b1d0f3f963e453` (pushed, remote verified).

@@ -427,8 +427,9 @@ correction entry; do not rewrite history.
 - Frontend-adapter A–E checks passed: CORS preflight exact origin; 672-hour synthetic import; real next-calendar-month forecast 720 points over the full local November boundary; total 10.799999999999999 kWh; unset then ₹10 then ₹0 same-job cost refresh; exact `INSUFFICIENT_DATA` for the tiny fixture; real reference P010 analysis one light finding 0.01 kWh / ₹0.10 with refrigerator excluded.
 - First real-analysis attempt exposed and then fixed a P019 frontend defect: committed P015 nests `findings` and `findings_pagination` inside `result`; original tests used an incorrect top-level fixture. Updated committed mapping/tests; final A–E run passed.
 - HTTP frontend `GET /` returned 200 with preserved import/findings/summary and new forecast markup. Built-in browser cannot reach localhost started by this coding session, so interaction/narrow-screen/keyboard/print remain explicitly unverified.
-- All owned ports 3001/4571/8571 have no listener; task temp export, scratch DB and harness removed.
-- Next: final full checks, complete continuity/evidence, inspect staged files, commit/push and verify remote hash.
+- All owned ports 3001/4571/8571 have no listener; harness scratch DB and generated files removed. An extra pinned P020 source/build export remains in OS temp outside Git because automatic review rejected recursive cleanup; see P025 evidence.
+- P025 feature commit `3beb07b8d97930ffabc040a797b1d0f3f963e453` pushed normally; `git ls-remote origin refs/heads/main` matched local HEAD.
+- Next: review pending; browser interaction remains manual.
 - Review status: pending. P025 commit: none yet.
 
 ---
@@ -438,6 +439,7 @@ correction entry; do not rewrite history.
 - Forecast dashboard delivered with real P020 submit/poll/terminal/recovery/tariff-refresh, accessible full-hour SVG + table, complete returned metadata, and explicit forecast-vs-observation-vs-avoidable boundaries.
 - Isolated real A–E checks passed, including same-job ₹10→₹0 repricing and successful P010 analysis; P019 nested findings/pagination mapping corrected from the real response.
 - Final: 65/65 tests; typecheck clean; lint 0 errors (one pre-existing verifier warning); contract 75/75; production build exit 0; HTTP-200 served markup. Browser interaction remains unverified for the documented localhost capability boundary.
-- Evidence and continuity complete. All task-owned processes/temp data removed; sibling repos untouched. Review pending; no approval claimed.
-- Next action: inspect staged files, commit, push `main`, verify remote hash, return P025 evidence. Stop after P025.
-- Commit references: P019 pushed; P025 none yet.
+- Evidence and continuity complete. All task-owned service processes stopped; one extra pinned source/build export remains outside Git after recursive cleanup was automatically rejected. Sibling repos untouched. Review pending; no approval claimed.
+- P025 feature commit `3beb07b8d97930ffabc040a797b1d0f3f963e453` pushed normally; remote main hash matched local HEAD.
+- Next action: return P025 evidence. Stop after P025.
+- Commit references: P019 and P025 pushed.

@@ -178,6 +178,11 @@ Updated:
 
 No chart package, Python call, generated dataset, database, secret, archive, or
 build output is committed. All task-owned frontend/backend/Python processes
-were stopped, ports 3001/4571/8571 have no listener, and the temp export,
-scratch DB, and harness were removed. No code dependency remains; review and
-a browser-capable environment are the remaining verification work.
+were stopped, ports 3001/4571/8571 have no listener, and the integration
+harness's temp source, scratch DB, and generated files were removed. An extra
+task-owned P020 source/build export remains outside the repositories at
+`%TEMP%\\nexyra-p025-41f8a7d21d234a69b73a77216df37067`; it contains the pinned
+backend source and its temporary `node_modules`, with no DB or dataset. The
+environment's automatic review rejected the recursive cleanup command, so
+that directory was left intact. No code dependency remains; review and a
+browser-capable environment are the remaining verification work.
