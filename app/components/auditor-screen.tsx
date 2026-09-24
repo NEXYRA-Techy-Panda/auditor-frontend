@@ -11,30 +11,36 @@ import ConnectionPanel from "./connection-panel";
 import DatasetsPanel from "./datasets-panel";
 import SummaryPanel from "./summary-panel";
 import UploadPanel from "./upload-panel";
-import { shouldAutoSelectImport } from "../lib/auditor-api";
+import { createSelectionRevision, type DatasetItem } from "../lib/auditor-api";
 
 export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [listToken, setListToken] = useState(0);
-  const lastManualSelectAt = useRef<number | null>(null);
+  const [datasets, setDatasets] = useState<DatasetItem[]>([]);
+  const revision = useRef(createSelectionRevision());
 
   const manualSelect = useCallback((datasetId: string) => {
-    lastManualSelectAt.current = Date.now();
+    revision.current.manualSelect();
     setSelectedId(datasetId);
   }, []);
 
+  const captureRevision = useCallback(() => revision.current.current(), []);
+
+  const handleListChange = useCallback((items: DatasetItem[]) => {
+    setDatasets(items);
+  }, []);
+
   const handleImported = useCallback(
-    (datasetId: string, uploadStartedAtMs: number) => {
+    (datasetId: string, submittedRev: number) => {
       setListToken((t) => t + 1); // reload the list either way
-      if (
-        shouldAutoSelectImport(uploadStartedAtMs, lastManualSelectAt.current)
-      ) {
-        manualSelect(datasetId); // …select the new dataset and fetch summary
+      if (revision.current.shouldAutoSelect(submittedRev)) {
+        revision.current.autoSelect();
+        setSelectedId(datasetId); // …select the new dataset and fetch summary
       }
       // Otherwise the user's newer manual selection stands; the upload panel
       // offers an explicit View action for the imported dataset.
     },
-    [manualSelect],
+    [],
   );
 
   return (
@@ -42,6 +48,7 @@ export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
       <div className="flex flex-col gap-6">
         <UploadPanel
           backendUrl={backendUrl}
+          onUploadStart={captureRevision}
           onImported={handleImported}
           onViewDataset={manualSelect}
         />
@@ -50,8 +57,13 @@ export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
           selectedId={selectedId}
           onSelect={manualSelect}
           refreshToken={listToken}
+          onListChange={handleListChange}
         />
-        <SummaryPanel backendUrl={backendUrl} datasetId={selectedId} />
+        <SummaryPanel
+          backendUrl={backendUrl}
+          datasetId={selectedId}
+          dataset={datasets.find((d) => d.dataset_id === selectedId) ?? null}
+        />
       </div>
       <div className="flex flex-col gap-6">
         <ConnectionPanel backendUrl={backendUrl} kind="auditor" />

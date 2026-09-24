@@ -71,10 +71,17 @@ relying on any single shape in later layers.
   until each item has a dated, witnessed result.
 
 ## 6. P012 race-hardening now in the UI (still browser-pending)
-
 The frontend guards rapid interactions (stale summary/tariff/upload
 completions, scoped errors, aborts) and labels previous-vs-current data —
 all covered by committed deferred-mock tests. Browser-witnessed runs of
 §3 items 10–13 must additionally exercise: fast A→B→C selection switching,
 tariff save during selection change, and upload completion after a manual
 selection. None of these have been observed in a browser yet.
+
+## 7. P014 printable summary (browser-pending)
+
+The UI offers a "Print summary" action producing a browser-print snapshot
+from fetched data (eligibility-gated, fixed at click time). Still to witness
+in a browser: print preview pagination with a real dataset, keyboard flow to
+and from the print action, and a long-content example (many gaps/devices).
+SSR markup and built-CSS inspection do not prove print pagination.

@@ -24,3 +24,56 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Print: browser print facility only ("Save as PDF" supported by the
+   browser). Only the fixed report snapshot prints — no navigation, file
+   picker, fields, or buttons. Legible without background colors. */
+@media print {
+  @page {
+    margin: 15mm;
+  }
+  body {
+    background: #fff;
+  }
+  body * {
+    visibility: hidden;
+  }
+  .report-print,
+  .report-print * {
+    visibility: visible;
+  }
+  .report-print {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: #000;
+    background: #fff;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+  .report-print * {
+    overflow-wrap: anywhere;
+  }
+  .report-print h1 {
+    font-size: 20pt;
+    margin-bottom: 12pt;
+  }
+  .report-print h2 {
+    font-size: 14pt;
+    margin-top: 14pt;
+    margin-bottom: 6pt;
+  }
+  .report-print section {
+    break-inside: avoid;
+  }
+  .report-print dl > div {
+    display: flex;
+    gap: 8pt;
+    margin-bottom: 2pt;
+  }
+  .report-print dt {
+    font-weight: bold;
+    min-width: 140pt;
+  }
+}

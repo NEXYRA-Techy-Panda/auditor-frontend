@@ -255,17 +255,29 @@ export function createRequestTracker(): {
 }
 
 /**
- * Post-upload auto-select guard. An upload completion selects its dataset
- * only when the user has not deliberately selected something newer since the
- * upload started (timestamps from the same clock). Otherwise the UI keeps
- * the newer selection and offers an explicit View action instead.
+ * Post-upload auto-select guard (monotonic revision, no wall clock).
+ * The screen bumps the revision on every deliberate selection change
+ * (manual select or applied auto-select). An upload captures the revision at
+ * submit; its completion auto-selects only when nothing newer happened.
+ * Same-millisecond actions and wall-clock jumps cannot misorder this.
  */
-export function shouldAutoSelectImport(
-  uploadStartedAtMs: number | null,
-  lastManualSelectAtMs: number | null,
-): boolean {
-  if (uploadStartedAtMs === null || lastManualSelectAtMs === null) return true;
-  return lastManualSelectAtMs <= uploadStartedAtMs;
+export function createSelectionRevision(): {
+  current: () => number;
+  manualSelect: () => void;
+  autoSelect: () => void;
+  shouldAutoSelect: (submittedRev: number) => boolean;
+} {
+  let rev = 0;
+  return {
+    current: () => rev,
+    manualSelect: () => {
+      rev += 1;
+    },
+    autoSelect: () => {
+      rev += 1;
+    },
+    shouldAutoSelect: (submittedRev: number) => submittedRev === rev,
+  };
 }
 
 /**
@@ -278,6 +290,100 @@ export function shouldApplyTariffResult(
   currentDatasetId: string | null,
 ): boolean {
   return currentDatasetId !== null && submittedDatasetId === currentDatasetId;
+}
+
+/**
+ * Fixed print snapshot. Built only from one coherent fetched summary (plus
+ * optional list metadata); every field is copied, so later responses can
+ * never mutate the preview.
+ */
+export interface ReportSnapshot {
+  datasetId: string;
+  runId: string | null;
+  scenarioId: string | null;
+  intervalSeconds: number | null;
+  importedUtc: string | null;
+  energyKwh: number;
+  costInr: number | null;
+  tariffInrPerKwh: number | null;
+  gaps: unknown[];
+  synthetic: boolean | null;
+  fetchedAtIso: string;
+  generatedAtIso: string;
+}
+
+export interface ReportEligibility {
+  eligible: boolean;
+  /** Human reason shown when printing is unavailable; null when eligible. */
+  reason: string | null;
+}
+
+/**
+ * Decide whether the print action may run. Printing requires a current,
+ * matching, settled summary — never a previous dataset's values, a loading
+ * state, or a pending tariff mutation.
+ */
+export function printEligibility(args: {
+  selectedId: string | null;
+  summary: DatasetSummary | null;
+  loading: boolean;
+  saving: boolean;
+}): ReportEligibility {
+  if (!args.selectedId) {
+    return { eligible: false, reason: "Select a dataset before printing." };
+  }
+  if (!args.summary) {
+    return { eligible: false, reason: "No summary is loaded yet." };
+  }
+  if (args.summary.dataset_id !== args.selectedId) {
+    return {
+      eligible: false,
+      reason: `The loaded summary belongs to ${args.summary.dataset_id}, not the selected ${args.selectedId}. Wait for the current load to finish.`,
+    };
+  }
+  if (args.loading) {
+    return { eligible: false, reason: "The summary is still loading." };
+  }
+  if (args.saving) {
+    return {
+      eligible: false,
+      reason: "A tariff change is saving — print after it confirms.",
+    };
+  }
+  return { eligible: true, reason: null };
+}
+
+export function buildReportSnapshot(args: {
+  selectedId: string;
+  summary: DatasetSummary;
+  dataset?: { run_id?: string; scenario_id?: string; interval_seconds?: number; imported_utc?: string } | null;
+  loading: boolean;
+  saving: boolean;
+  fetchedAtIso: string;
+  generatedAtIso: string;
+}): ReportSnapshot | null {
+  const check = printEligibility({
+    selectedId: args.selectedId,
+    summary: args.summary,
+    loading: args.loading,
+    saving: args.saving,
+  });
+  if (!check.eligible) return null;
+  if (args.summary.dataset_id !== args.selectedId) return null;
+  return {
+    datasetId: args.summary.dataset_id,
+    runId: args.dataset?.run_id ?? null,
+    scenarioId: args.dataset?.scenario_id ?? null,
+    intervalSeconds: args.dataset?.interval_seconds ?? null,
+    importedUtc: args.dataset?.imported_utc ?? null,
+    energyKwh: args.summary.energy_kwh,
+    costInr: args.summary.cost_inr,
+    tariffInrPerKwh: args.summary.tariff_inr_per_kwh,
+    gaps: [...args.summary.gaps],
+    synthetic: args.summary.synthetic,
+    fetchedAtIso: args.fetchedAtIso,
+    generatedAtIso: args.generatedAtIso,
+  };
 }
 
 async function readJsonError(

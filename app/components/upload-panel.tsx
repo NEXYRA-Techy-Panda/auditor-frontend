@@ -23,11 +23,13 @@ function formatBytes(bytes: number): string {
 
 export default function UploadPanel({
   backendUrl,
+  onUploadStart,
   onImported,
   onViewDataset,
 }: {
   backendUrl: string;
-  onImported: (datasetId: string, uploadStartedAtMs: number) => void;
+  onUploadStart: () => number;
+  onImported: (datasetId: string, submittedRev: number) => void;
   onViewDataset: (datasetId: string) => void;
 }) {
   const [file, setFile] = useState<File | null>(null);
@@ -68,7 +70,7 @@ export default function UploadPanel({
     }
     const controller = new AbortController();
     inFlight.current = controller;
-    const startedAtMs = Date.now();
+    const submittedRev = onUploadStart();
     setPhase("submitting");
     setError(null);
     setIssues([]);
@@ -83,7 +85,7 @@ export default function UploadPanel({
       if (!mounted.current) return;
       setResult(r);
       setPhase("success");
-      onImported(r.dataset_id, startedAtMs);
+      onImported(r.dataset_id, submittedRev);
     } catch (err) {
       if (!mounted.current) return;
       if (err instanceof ApiError && err.code === "VALIDATION_REJECTED") {
@@ -105,7 +107,7 @@ export default function UploadPanel({
     } finally {
       if (inFlight.current === controller) inFlight.current = null;
     }
-  }, [file, backendUrl, onImported]);
+  }, [file, backendUrl, onUploadStart, onImported]);
 
   return (
     <section className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">

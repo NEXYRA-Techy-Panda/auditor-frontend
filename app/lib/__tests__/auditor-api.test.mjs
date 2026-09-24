@@ -7,14 +7,16 @@ import {
   ApiError,
   API_TIMEOUT_MS,
   UPLOAD_TIMEOUT_MS,
+  buildReportSnapshot,
   createRequestTracker,
+  createSelectionRevision,
   getSummary,
   listDatasets,
   parseDatasetList,
   parseSummary,
   parseTariffInput,
+  printEligibility,
   shouldApplyTariffResult,
-  shouldAutoSelectImport,
   updateTariff,
   uploadDataset,
 } from "../auditor-api.ts";
@@ -297,12 +299,19 @@ describe("race guards (deferred mocks, same mechanism the UI uses)", () => {
     assert.equal(shouldApplyTariffResult("A", null), false);
   });
 
-  it("upload completion auto-selects only without a newer manual selection", () => {
-    assert.equal(shouldAutoSelectImport(1000, null), true);
-    assert.equal(shouldAutoSelectImport(null, 2000), true);
-    assert.equal(shouldAutoSelectImport(1000, 900), true);
-    assert.equal(shouldAutoSelectImport(1000, 1000), true);
-    assert.equal(shouldAutoSelectImport(1000, 1500), false);
+  it("upload completion auto-selects only without a newer selection event", () => {
+    // Deterministic event ordering: same-millisecond actions and wall-clock
+    // jumps cannot misorder a monotonic revision (the P012 wall-clock flaw).
+    const rev = createSelectionRevision();
+    const submitted = rev.current(); // upload submitted at revision 0
+    rev.manualSelect(); // user selects something newer before completion
+    assert.equal(rev.shouldAutoSelect(submitted), false);
+    const rev2 = createSelectionRevision();
+    const submitted2 = rev2.current();
+    assert.equal(rev2.shouldAutoSelect(submitted2), true);
+    rev2.autoSelect();
+    // An older upload finishing after the auto-select must not reselect.
+    assert.equal(rev2.shouldAutoSelect(submitted2), false);
   });
 
   it("synthetic flag is explicit-only, never inferred", () => {
@@ -310,5 +319,96 @@ describe("race guards (deferred mocks, same mechanism the UI uses)", () => {
     assert.equal(parseSummary({ dataset_id: "x", energy_kwh: 1 }).synthetic, null);
     assert.equal(parseSummary({ dataset_id: "x", energy_kwh: 1, synthetic: false }).synthetic, null);
     assert.equal(parseSummary({ dataset_id: "x", energy_kwh: 1, synthetic: "yes" }).synthetic, null);
+  });
+});
+
+describe("print snapshot and eligibility", () => {
+  const base = {
+    selectedId: "ds-1",
+    summary: {
+      dataset_id: "ds-1",
+      energy_kwh: 0.03,
+      cost_inr: 0.3,
+      tariff_inr_per_kwh: 10,
+      gaps: [],
+      synthetic: null,
+    },
+    dataset: { run_id: "run-1", scenario_id: "original" },
+    loading: false,
+    saving: false,
+    fetchedAtIso: "2026-09-24T00:01:00Z",
+    generatedAtIso: "2026-09-24T00:02:00Z",
+  };
+
+  it("builds a fixed snapshot from a coherent current summary", () => {
+    const snap = buildReportSnapshot(base);
+    assert.ok(snap);
+    assert.equal(snap.datasetId, "ds-1");
+    assert.equal(snap.runId, "run-1");
+    assert.equal(snap.energyKwh, 0.03);
+    assert.equal(snap.fetchedAtIso, "2026-09-24T00:01:00Z");
+    assert.equal(snap.generatedAtIso, "2026-09-24T00:02:00Z");
+  });
+
+  it("refuses mismatched identity, loading, and pending tariff", () => {
+    assert.equal(
+      buildReportSnapshot({ ...base, selectedId: "ds-2" }),
+      null,
+    );
+    assert.match(
+      printEligibility({ ...base, selectedId: "ds-2" }).reason,
+      /ds-1/,
+    );
+    assert.equal(buildReportSnapshot({ ...base, loading: true }), null);
+    assert.equal(buildReportSnapshot({ ...base, saving: true }), null);
+    assert.equal(
+      buildReportSnapshot({ ...base, selectedId: null }),
+      null,
+    );
+    assert.equal(printEligibility({ ...base, summary: null }).eligible, false);
+  });
+
+  it("preserves unset versus explicit zero tariff", () => {
+    const unset = buildReportSnapshot({
+      ...base,
+      summary: { ...base.summary, cost_inr: null, tariff_inr_per_kwh: null },
+    });
+    assert.equal(unset.costInr, null);
+    assert.equal(unset.tariffInrPerKwh, null);
+    const zero = buildReportSnapshot({
+      ...base,
+      summary: { ...base.summary, cost_inr: 0, tariff_inr_per_kwh: 0 },
+    });
+    assert.equal(zero.costInr, 0);
+    assert.equal(zero.tariffInrPerKwh, 0);
+  });
+
+  it("snapshot is fixed against later responses", () => {
+    const summary = { ...base.summary };
+    const snap = buildReportSnapshot({ ...base, summary });
+    assert.ok(snap);
+    summary.energy_kwh = 999;
+    summary.cost_inr = 999;
+    assert.equal(snap.energyKwh, 0.03);
+    assert.equal(snap.costInr, 0.3);
+  });
+
+  it("missing optional metadata becomes null, never invented", () => {
+    const snap = buildReportSnapshot({ ...base, dataset: null });
+    assert.ok(snap);
+    assert.equal(snap.runId, null);
+    assert.equal(snap.scenarioId, null);
+    assert.equal(snap.importedUtc, null);
+  });
+
+  it("synthetic disclosure follows the explicit flag only", () => {
+    assert.equal(
+      buildReportSnapshot({ ...base, summary: { ...base.summary, synthetic: true } }).synthetic,
+      true,
+    );
+    assert.equal(
+      buildReportSnapshot({ ...base, summary: { ...base.summary, synthetic: null } }).synthetic,
+      null,
+    );
   });
 });

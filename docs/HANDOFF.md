@@ -2,7 +2,7 @@
 
 ## 0. Continuity and current layer (F0.1, 2026-09-24)
 
-- Current layer: **P012 A2-UI** (auditor reliability, Agent A —
+- Current layer: **P014 A3** (printable summary, Agent A —
   OpenCode) — status **completed**, review **pending**. Contract: **1.0.1
   authoritative, read-only**.
 - P001 F4-A addendum (completed, review pending): browser-side connection
@@ -28,6 +28,14 @@
   interaction unverified. Details in
   [P012 evidence](P012_AUDITOR_UI_RELIABILITY_EVIDENCE.md).
   History preserved.
+- P014 A3 addendum (completed, review pending): printable "Energy dataset
+  summary" from a fixed coherent snapshot with eligibility gating
+  (identity/loading/saving), print CSS via browser facility; monotonic
+  selection revision replaces wall-clock auto-select guard (+ regression
+  test). Verified: 29/29 tests, 75/75 contract, typecheck/lint(0 errors)/
+  build green, HTTP-200 shells, print CSS in built bundle; real backend down;
+  print preview/keyboard/browser unverified. Details in
+  [P014 evidence](P014_DATASET_SUMMARY_EVIDENCE.md). History preserved.
 - P011 addendum (completed, review pending): backend aa53d0c inspected
   (P006 uncommitted) → checklist branch, UI preserved; created
   [AUDITOR_INTEGRATION_CHECKLIST.md](AUDITOR_INTEGRATION_CHECKLIST.md) and

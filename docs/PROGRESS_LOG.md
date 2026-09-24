@@ -295,3 +295,29 @@ correction entry; do not rewrite history.
 - Real backend :4001 refused; nothing uploaded; browser interaction/CORS unverified. Simulation-frontend untouched. Review pending; no approval claimed.
 - Next action: commit, push main, verify remote hash; return P012 evidence. Stop after P012.
 - Commit references: P011 pushed; P012 recorded after push.
+---
+
+## 2026-09-24 21:01:12 +05:30 (IST) - P014 A3 started (actual, Agent A - OpenCode)
+
+- P012 accepted based on evidence. Browser behavior and real backend compatibility remain pending (recorded).
+- Exclusive writer: auditor-frontend only. No sibling/backend/contract/parent writes; no backend processes started or stopped.
+- Startup: AGENTS.md absent; full context + P012 evidence + checklist + implementation read; main clean at expected baseline 7d3661e, fetch clean.
+- Next action: printable snapshot + eligibility + print CSS; shouldAutoSelectImport follow-up with tests.
+- Review status: pending. P014 commit: none yet.
+---
+
+## 2026-09-24 21:20:00 +05:30 (IST) - P014 implementation complete, verifying (actual, Agent A - OpenCode)
+
+- Revision guard replaces wall-clock auto-select (screen + upload panel reworked); snapshot/eligibility helpers + report view + print CSS done.
+- 29/29 tests (revision + 6 snapshot cases); typecheck/lint(0 errors)/build/75-75 green.
+- Next: serve + HTTP markup, real-backend probe (read-only), docs, commit, push.
+- Review status: pending.
+---
+
+## 2026-09-24 21:01:12 +05:30 (IST) - P014 A3 completed (actual, Agent A - OpenCode)
+
+- Fixed-snapshot printable summary + eligibility gating + print CSS + ReportView done; wall-clock guard replaced with monotonic revision (+ regression test).
+- 29/29 tests; 75/75 contract; typecheck/lint(0 errors)/build green; HTTP-200 shells; print CSS in built bundle; own server stopped.
+- Real backend :4001 refused; nothing uploaded; print preview/keyboard/browser unverified. Sibling repos untouched. Review pending; no approval claimed.
+- Next action: commit, push main, verify remote hash; return P014 evidence. Stop after P014.
+- Commit references: P012 pushed; P014 recorded after push.

@@ -21,11 +21,13 @@ export default function DatasetsPanel({
   selectedId,
   onSelect,
   refreshToken,
+  onListChange,
 }: {
   backendUrl: string;
   selectedId: string | null;
   onSelect: (datasetId: string) => void;
   refreshToken: number;
+  onListChange?: (items: DatasetItem[]) => void;
 }) {
   const [phase, setPhase] = useState<Phase>("loading");
   const [items, setItems] = useState<DatasetItem[]>([]);
@@ -54,6 +56,7 @@ export default function DatasetsPanel({
       );
       if (!mounted.current || !tracker.current.isCurrent(id)) return;
       setItems(list);
+      onListChange?.(list);
       setError(null);
       setPhase("loaded");
     } catch (err) {
@@ -66,7 +69,7 @@ export default function DatasetsPanel({
     } finally {
       if (inFlight.current === controller) inFlight.current = null;
     }
-  }, [backendUrl, items.length]);
+  }, [backendUrl, items.length, onListChange]);
 
   useEffect(() => {
     mounted.current = true;
