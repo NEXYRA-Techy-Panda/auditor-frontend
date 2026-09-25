@@ -587,6 +587,23 @@ correction entry; do not rewrite history.
 
 ---
 
+## 2026-09-25 — Post-P028 health envelope fix (Mohan, M-A — OpenCode)
+
+- Reproduced the reported auditor connection issue from the exact public
+  response: HTTP 2xx with `{ data: { status, contract_version, ml_reachable },
+  meta }`. The backend was healthy; `parseHealthResponse` was reading the
+  outer envelope and incorrectly returned `unexpected`.
+- Updated the frontend health adapter to unwrap the documented `data` member
+  while retaining strict validation and bare-payload compatibility. Added
+  `app/lib/__tests__/health.test.mjs` with the captured response regression.
+- Final checks: 96 tests passed, typecheck passed, build passed, contract 75/75
+  passed, lint has 0 errors plus the existing verifier warning. No backend,
+  database, deployment or production mutation was made.
+- Next action: commit and push the frontend-only health fix, then verify the
+  remote main ref.
+
+---
+
 ## 2026-09-25 — P028-UI final continuity publication (Mohan, M-A — OpenCode)
 
 - Recorded the final continuity state in commit

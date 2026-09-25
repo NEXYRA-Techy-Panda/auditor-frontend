@@ -585,6 +585,34 @@ export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
             </div>
           </div>
         </div>
+
+        {/* Connection check and configuration: collapsed by default, out of the way. */}
+        <details className="group mt-8 rounded-2xl border border-white/[0.08] bg-[#0c101c]/80 shadow-xl backdrop-blur-xl transition hover:border-white/[0.15]">
+          <summary className="cursor-pointer select-none px-5 py-3 text-xs font-mono font-medium text-slate-400 hover:text-white transition flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+              <span>Settings — backend connection &amp; configuration</span>
+            </div>
+            <span className="text-[10px] text-slate-500 group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div className="flex flex-col gap-4 border-t border-white/[0.06] p-5">
+            <ConnectionPanel backendUrl={backendUrl} kind="auditor" />
+            <dl className="space-y-1.5 font-mono text-xs text-slate-300">
+              <div className="flex gap-2">
+                <dt className="shrink-0 text-slate-500">
+                  Backend API =
+                </dt>
+                <dd className="break-all text-emerald-400">{backendUrl}</dd>
+              </div>
+              <div className="flex gap-2">
+                <dt className="shrink-0 text-slate-500">
+                  Contract version =
+                </dt>
+                <dd className="text-slate-300">v1.0.1 (read-only this layer)</dd>
+              </div>
+            </dl>
+          </div>
+        </details>
       </main>
     </div>
   );

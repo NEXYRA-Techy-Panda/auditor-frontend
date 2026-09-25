@@ -59,6 +59,10 @@ export function sanitizeOrigin(raw: string | undefined): string | null {
   return url.toString().replace(/\/+$/, "");
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 function optionalString(value: unknown): string | null | undefined {
   if (value == null) return null;
   return typeof value === "string" ? value : undefined;
@@ -70,10 +74,13 @@ function optionalString(value: unknown): string | null | undefined {
  * optional fields. Malformed input is never coerced into a success.
  */
 export function parseHealthResponse(json: unknown): ParsedHealth | null {
-  if (typeof json !== "object" || json === null || Array.isArray(json)) {
-    return null;
-  }
-  const o = json as Record<string, unknown>;
+  if (!isRecord(json)) return null;
+  // The public API uses the standard { data, meta } envelope. Accept the
+  // historical bare object as well, but never fall back from a malformed
+  // `data` member to fields on the outer envelope.
+  const hasDataMember = Object.prototype.hasOwnProperty.call(json, "data");
+  const o = hasDataMember ? json.data : json;
+  if (!isRecord(o)) return null;
   if (typeof o.status !== "string" || o.status.length === 0) return null;
 
   const contractVersion = optionalString(o.contract_version);
