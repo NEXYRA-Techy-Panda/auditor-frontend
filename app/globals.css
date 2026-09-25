@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --glass-surface: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(226, 232, 240, 0.8);
+  --card-glow: rgba(16, 185, 129, 0.08);
 }
 
 @theme inline {
@@ -14,26 +17,172 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #06080e;
+    --foreground: #f1f5f9;
+    --glass-surface: rgba(13, 18, 30, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --card-glow: rgba(16, 185, 129, 0.15);
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
 }
 
-/* Print: browser print facility only ("Save as PDF" supported by the
-   browser). Only the fixed report snapshot prints — no navigation, file
-   picker, fields, or buttons. Legible without background colors. */
+/* Atmospheric God-Tier Background Glow in Dark Mode */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #06080e;
+    background-image: 
+      radial-gradient(circle 800px at 15% -10%, rgba(16, 185, 129, 0.12), transparent 80%),
+      radial-gradient(circle 700px at 85% 15%, rgba(6, 182, 212, 0.10), transparent 75%),
+      radial-gradient(circle 600px at 50% 110%, rgba(139, 92, 246, 0.08), transparent 70%),
+      linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+    background-attachment: fixed;
+  }
+}
+
+/* Light mode crisp subtle grid */
+@media (prefers-color-scheme: light) {
+  body {
+    background-image: 
+      radial-gradient(circle 600px at 50% -20%, rgba(16, 185, 129, 0.05), transparent 70%),
+      linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+    background-size: 100% 100%, 32px 32px, 32px 32px;
+    background-attachment: fixed;
+  }
+}
+
+/* God-Tier Card Surface Elevation */
+@media (prefers-color-scheme: dark) {
+  .rounded-xl.border,
+  .rounded-2xl.border {
+    background: var(--glass-surface) !important;
+    backdrop-filter: blur(20px) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 
+      0 4px 24px -1px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.08) !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .rounded-xl.border:hover,
+  .rounded-2xl.border:hover {
+    border-color: rgba(255, 255, 255, 0.16) !important;
+    box-shadow: 
+      0 8px 32px -2px rgba(0, 0, 0, 0.6),
+      0 0 24px -4px var(--card-glow),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.15) !important;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .rounded-xl.border,
+  .rounded-2xl.border {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(16px) !important;
+    border-color: rgba(226, 232, 240, 0.8) !important;
+    box-shadow: 
+      0 1px 3px 0 rgba(0, 0, 0, 0.05),
+      0 10px 15px -3px rgba(0, 0, 0, 0.03) !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .rounded-xl.border:hover,
+  .rounded-2xl.border:hover {
+    border-color: rgba(16, 185, 129, 0.3) !important;
+    box-shadow: 
+      0 12px 28px -4px rgba(0, 0, 0, 0.08),
+      0 0 16px -2px rgba(16, 185, 129, 0.1) !important;
+  }
+}
+
+/* Polished Form Inputs & Controls */
+input[type="text"],
+input[type="number"],
+input[type="file"],
+select,
+textarea {
+  transition: all 0.2s ease-in-out !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    background: rgba(10, 14, 24, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: #f8fafc !important;
+  }
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  select:focus,
+  textarea:focus {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25), 0 0 12px rgba(16, 185, 129, 0.2) !important;
+  }
+}
+
+/* God-Tier Tactile Buttons */
+button {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px) scale(0.99) !important;
+}
+
+/* High-Precision Tables */
+table {
+  font-variant-numeric: tabular-nums;
+}
+
+th {
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+/* Custom Neon & Glass Utility Helpers */
+.god-glow-emerald {
+  box-shadow: 0 0 25px -3px rgba(16, 185, 129, 0.3);
+}
+
+.god-glow-cyan {
+  box-shadow: 0 0 25px -3px rgba(6, 182, 212, 0.3);
+}
+
+/* Custom smooth scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.45);
+}
+
+/* Print: browser print facility only */
 @media print {
   @page {
     margin: 15mm;
   }
   body {
-    background: #fff;
+    background: #fff !important;
+    background-image: none !important;
   }
   body * {
     visibility: hidden;

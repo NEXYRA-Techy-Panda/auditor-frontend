@@ -5,18 +5,8 @@ const backendUrl = AUDITOR_BACKEND_URL;
 
 export default function Home() {
   return (
-    <div className="flex flex-1 flex-col bg-zinc-50 font-sans dark:bg-black">
-      <header className="border-b border-zinc-200 bg-white px-8 py-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-          Energy Auditor
-        </h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          NEXYRA auditing frontend — upload and datasets
-        </p>
-      </header>
-      <main className="flex flex-1 flex-col">
-        <AuditorScreen backendUrl={backendUrl} />
-      </main>
+    <div className="flex min-h-screen flex-1 flex-col bg-slate-50 font-sans text-slate-900 transition-colors dark:bg-[#090d16] dark:text-slate-100">
+      <AuditorScreen backendUrl={backendUrl} />
     </div>
   );
 }
