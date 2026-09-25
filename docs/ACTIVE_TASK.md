@@ -96,3 +96,15 @@ remote hash are recorded in `docs/P027_DASHBOARD_COMPLETION_EVIDENCE.md`.
   final checkpoint. A separate deployment observation is not claimed.
 - Exact next action: return the P028-UI evidence report. Browser/print
   verification remains manual because the available browser was disconnected.
+
+## Post-P028 health adapter fix
+
+- The public `/api/v1/health` response is correctly enveloped as
+  `{ data, meta }`; the frontend parser was reading fields from the outer
+  object and incorrectly classified the valid response as unexpected.
+- `parseHealthResponse` now unwraps the documented data envelope while
+  retaining strict field validation and bare-payload compatibility. A
+  regression test covers the exact response shape and reachable classification.
+- Current checks after the fix: 96 tests passed, typecheck passed, build passed,
+  contract 75/75 passed, and lint has 0 errors plus the existing verifier
+  warning. Exact next action: commit and push this frontend-only fix.

@@ -1,5 +1,17 @@
 # HANDOFF — auditor-frontend
 
+## Post-P028 health connection fix (2026-09-25)
+
+- The public health route returned a valid `{ data, meta }` envelope with
+  `status: "ok"`, `contract_version: "1.0.1"`, and `ml_reachable: true`.
+- The frontend health adapter now unwraps that envelope and preserves strict
+  validation; the connection panel will classify it as reachable and display
+  contract `1.0.1`.
+- Regression coverage is in `app/lib/__tests__/health.test.mjs`. Final local
+  checks: 96 tests, typecheck, build and contract 75/75 passed; lint has zero
+  errors plus the existing verifier warning. Backend was not changed.
+
+
 ## 0. Continuity and current layer (F0.1, 2026-09-24)
 
 - Current layer: **P028-UI** (actionable audit report, Developer Mohan,
