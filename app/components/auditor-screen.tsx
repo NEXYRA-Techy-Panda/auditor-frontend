@@ -116,7 +116,7 @@ export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
   );
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 gap-6 px-4 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-8 sm:px-8">
       <div className="flex flex-col gap-6">
         <UploadPanel
           backendUrl={backendUrl}
@@ -185,13 +185,14 @@ export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
           onSnapshotChange={handleAuditReportChange}
         />
       </div>
-      <div className="flex flex-col gap-6">
-        <ConnectionPanel backendUrl={backendUrl} kind="auditor" />
-        <section className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
-          <h2 className="text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Configuration
-          </h2>
-          <dl className="mt-2 space-y-1 font-mono text-sm text-zinc-800 dark:text-zinc-200">
+      {/* Connection check and configuration: collapsed by default, out of the way. */}
+      <details className="group rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+        <summary className="cursor-pointer select-none px-4 py-2 text-sm font-medium text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200">
+          Settings — backend connection &amp; configuration
+        </summary>
+        <div className="flex flex-col gap-4 px-4 pb-4">
+          <ConnectionPanel backendUrl={backendUrl} kind="auditor" />
+          <dl className="space-y-1 font-mono text-sm text-zinc-800 dark:text-zinc-200">
             <div className="flex gap-2">
               <dt className="shrink-0 text-zinc-500 dark:text-zinc-400">
                 Backend API =
@@ -205,8 +206,8 @@ export default function AuditorScreen({ backendUrl }: { backendUrl: string }) {
               <dd>v1.0.1 (read-only this layer)</dd>
             </div>
           </dl>
-        </section>
-      </div>
+        </div>
+      </details>
     </div>
   );
 }
